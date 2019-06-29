@@ -139,32 +139,54 @@ namespace codequery.Drivers
             throw new NotImplementedException($"Cannot generate constant of type {constant.FieldType}");
         }
 
-        public string GenerateSelect(SelectQuery query)
+        private string GenereateSelectFields(SelectField[] fields)
         {
-            var fields = query.Fields.Select(f => {
+            return String.Join(", ", fields.Select(f => {
                 var str = GenerateField(f.Expression, 0);
                 if (!String.IsNullOrEmpty(f.Alias)) 
                 {
                     return str + $" AS {f.Alias}";
                 }
                 return str;
-             });
+             }));
+        }
+
+        public string GenerateSelect(SelectQuery query)
+        {
             string sql = "SELECT ";
-            sql += String.Join(", ", fields);
-
-
-            // sql += $" FROM {GenerateFrom(query.From)}";
-            // if (query.Where != null)
-            // {
-            //     sql += " WHERE " + GenerateField(query.Where);
-            // }
-            // if (query.GroupBy?.Count() > 0)
-            // {
-            //     sql += " GROUP BY " + GenerateFields(query.GroupBy);
-            // }
-            // return sql;
-
+            sql += GenereateSelectFields(query.Fields);
+            sql += " FROM ";
+            sql += GenerateSource(query.From);
+            if (query.Where != null)
+            {
+                sql += " WHERE " + GenerateField(query.Where, 0);
+            }
+            if (query.GroupBy?.Length > 0)
+            {
+                sql += " GROUP BY " + String.Join(", ", query.GroupBy.Select(s => GenerateField(s, 0)));
+            }
+            if (query.OrderBy?.Length > 0)
+            {
+                sql += " ORDER BY " + String.Join(", ", query.OrderBy.Select(s => GenerateField(s.By, 0) + (s.Ascending ? "ASC" : "DESC")));
+            }
             return sql;
+        }
+
+        private string GenerateSource(QuerySource from)
+        {
+            if (from is TableSource table) 
+            {
+                return $"{table.Table} {table.Alias}";
+            }
+            if (from is ConstantSource constant)
+            {
+                return $"SELECT {GenereateSelectFields(constant.Fields)} {constant.Alias}";
+            }
+            if (from is SubQuerySource sub) 
+            {
+                return $"{GenerateSource(sub.Source)}) {sub.Alias}";
+            }
+            throw new NotImplementedException($"Could not generate source from {from.GetType()}");
         }
     }
 }
