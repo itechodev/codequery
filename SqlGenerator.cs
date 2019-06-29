@@ -24,6 +24,11 @@ namespace codequery
             indent--;
         }
         
+        public void Add(string content)
+        {
+            builder.Append(content);
+        }
+
         public void AddLine(string line)
         {
             builder.Append(new String(' ', indent * 4) + line);
