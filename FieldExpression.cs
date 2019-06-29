@@ -22,11 +22,52 @@
 // FieldMath
 // FieldFunction
 
+// This only lists the clases necessary to generate SQL
+// It's no safegauard for generating invalid SQL
 namespace codequery
 {
-    public class QuerySource
-    {
+    // There are three types of source
+    // 1. Constant sources. Select 1, 2, 3
+    // 2. Table souces. The most obvious: Select * from table
+    // 3. SubQuery. Query from another query. Select * from (select 1)
 
+    public abstract class QuerySource
+    {
+        public QuerySource(string alias)
+        {
+            Alias = alias;
+        }
+        public string Alias { get; set; }
+    }
+
+    public class TableSource : QuerySource
+    {
+        public string Table { get; set; }
+
+        public TableSource(string table, string alias) : base(alias)
+        {
+            Table = table;
+        }
+    }
+
+    public class ConstantSource : QuerySource
+    {
+        public ConstantSource(string alias, params SelectField[] fields) : base(alias)
+        {
+            Fields = fields;
+        }
+
+        public SelectField[] Fields { get; private set; }
+    }
+
+    public class SubQuerySource : QuerySource
+    {
+        public SubQuerySource(QuerySource source, string alias) : base(alias)
+        {
+            Source = source;
+        }
+
+        public QuerySource Source { get; private set; }
     }
 
     public enum FieldType
