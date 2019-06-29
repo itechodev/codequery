@@ -239,7 +239,7 @@ namespace codequery.Expressions
 
 
     // Any expressino with an optional alias
-    public abstract class SelectField
+    public class SelectField
     {
         public SelectField(FieldExpression exp, string alias)
         {

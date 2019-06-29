@@ -172,10 +172,13 @@ namespace codequery.Drivers
         public string GenerateSelect(SelectQuery query)
         {
             SqlGenerator sql = new SqlGenerator();
-            sql.Add("SELECT", true);
+            sql.Add("SELECT");
             sql.Indent();
+            sql.NewLine();
+
             GenereateSelectFields(sql, query.Fields);
             sql.UnIndent();
+            sql.NewLine();
             sql.Add("FROM", true);
             
             GenerateSource(sql, query.From);
