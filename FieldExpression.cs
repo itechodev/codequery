@@ -1,5 +1,10 @@
 namespace codequery
 {
+    public class QuerySource
+    {
+
+    }
+
     public enum FieldType
     {
         Int,
@@ -21,7 +26,13 @@ namespace codequery
         }
     }
 
+    public enum ConstantSpecialType
+    {
+        Star
+    }
+
     // Select 1
+    // Can also be a count(*)
     public class ConstantExpression : FieldExpression
     {
         public ConstantExpression(FieldType type, object value): base(type)
@@ -44,6 +55,20 @@ namespace codequery
 
         public FieldExpression Field { get; set; }
     }
+
+    // Named query field like a.Age, a.name from [Source] a
+    public class SourceFieldExpression : FieldExpression
+    {
+        public SourceFieldExpression(FieldType type, string name, QuerySource source): base(type)
+        {
+            Name = name;
+            Source = source;
+        }
+        
+        public string Name { get; set; }
+        public QuerySource Source { get; set; }
+    }
+
 
     // Any expressino with an optional alias
     public abstract class SelectField
