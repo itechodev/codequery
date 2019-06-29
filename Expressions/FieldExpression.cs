@@ -225,13 +225,15 @@ namespace codequery.Expressions
 
     public class MathExpression : FieldExpression
     {
-        public FieldExpression Left { get; set; }
-        public FieldExpression Right { get; set; }
+        public FieldExpression Left { get; private set; }
+        public FieldExpression Right { get; private set; }
+        public FieldMathOperator Op { get; private set; }
 
         public MathExpression(FieldType type, FieldExpression left, FieldMathOperator op, FieldExpression right) : base(type)
         {
             Left = left;
             Right = right;
+            Op = op;
         }
     }
 
