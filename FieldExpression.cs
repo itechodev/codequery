@@ -68,7 +68,55 @@ namespace codequery
         public string Name { get; set; }
         public QuerySource Source { get; set; }
     }
+    
+    // List of aggregate functions codeQuery supports
+    // Item to be added
+    public enum AggregateFunction
+    {
+        Count,
+        Sum,
+        Min,
+        Max,
+        Average
+    }
 
+    public abstract class CallbackExpression : FieldExpression
+    {
+          public CallbackExpression(FieldType type, params FieldExpression[] arguments): base(type)
+        {
+            this.Arguments = arguments;
+        }
+
+        public FieldExpression[] Arguments { get; set; }
+    }
+
+    // count(a.id), sum(b.value)
+    public class AggregateExpression : CallbackExpression
+    {
+        public AggregateExpression(FieldType type, AggregateFunction function, params FieldExpression[] arguments): base(type, arguments)
+        {
+            this.Function = function;
+        }
+
+        public AggregateFunction Function { get; set; }
+    }
+
+    public enum FieldRowFunctionType
+    {
+        Distinct
+        // Don't know of any any row functions yet
+    }
+
+    // Not the same a function
+    public class RowFunctionExpression : CallbackExpression
+    {
+        public RowFunctionExpression(FieldType type, FieldRowFunctionType function, params FieldExpression[] arguments): base(type, arguments)
+        {
+            this.Function = function;
+
+        }
+        public FieldRowFunctionType Function { get; set; }
+    }
 
     // Any expressino with an optional alias
     public abstract class SelectField
