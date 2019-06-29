@@ -118,6 +118,59 @@ namespace codequery
         public FieldRowFunctionType Function { get; set; }
     }
 
+    // Inmature list. To be added
+    public enum FieldFunctionType
+    {
+        Lower,
+        Upper,
+        Substring,
+        LeftTrim,
+        RightTrim,
+        Trim,
+        Length,
+        Replace,
+        Contains
+    }
+    
+    public class FunctionExpression : CallbackExpression
+    {
+        public FunctionExpression(FieldType type, FieldFunctionType function, params FieldExpression[] arguments): base(type, arguments)
+        {
+            this.Function = function;
+
+        }
+        public FieldFunctionType Function { get; set; }
+    }
+
+    public enum FieldMathOperator
+    {
+        Plus,
+        Minus,
+        Multiply,
+        Divide,
+        Equal,
+        GreaterThan,
+        LessThan,
+        GreaterEqualThan,
+        LessEqualThan,
+        Or,
+        And,
+        StringConcat
+    }
+
+    public class MathExpression : FieldExpression
+    {
+        public FieldExpression Left { get; set; }
+        public FieldExpression Right { get; set; }
+
+        public MathExpression(FieldType type, FieldExpression left, FieldMathOperator op, FieldExpression right) : base(type)
+        {
+            Left = left;
+            Right = right;
+        }
+    }
+
+
     // Any expressino with an optional alias
     public abstract class SelectField
     {
