@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using codequery.Expressions;
 
@@ -11,10 +12,10 @@ namespace codequery.Drivers
             switch (field)
             {
                 case ConstantExpression constant:
-                    GenerateConstant(sql, constant);
+                    sql.Add(GenerateConstant(constant));
                     return;
                 case SourceFieldExpression named:
-                    GenerateNamed(sql, named);
+                    sql.Add(GenerateNamed(named));
                     return;
                 case AggregateExpression aggregate:
                     GenerateAggregate(sql, aggregate);
@@ -81,11 +82,13 @@ namespace codequery.Drivers
 
         private void GenerateFunc(SqlGenerator sql, FunctionExpression func)
         {
+            sql.Add(GenerateFunctionName(func.Function));
+            sql.Add("(");
             GenerateFields(sql, func.Arguments);
-            return $"{GenerateFunctionName(func.Function)}({fields})";
+            sql.Add(")");
         }
 
-        private object GenerateFunctionName(FieldFunctionType function)
+        private string GenerateFunctionName(FieldFunctionType function)
         {
             switch (function)
             {
@@ -99,13 +102,15 @@ namespace codequery.Drivers
             throw new NotImplementedException($"Could not generate function {function.ToString()}");
         }
 
-        private string GenerateAggregate(SqlGenerator sql, AggregateExpression aggregate)
+        private void GenerateAggregate(SqlGenerator sql, AggregateExpression aggregate)
         {
-            var fields = GenerateFields(aggregate.Arguments, tabIndex);
-            return $"{GenerateAggregateName(aggregate.Function)}({fields})";
+            sql.Add(GenerateAggregateName(aggregate.Function));
+            sql.Add("(");
+            GenerateFields(sql, aggregate.Arguments);
+            sql.Add(")");
         }
 
-        private object GenerateAggregateName(AggregateFunction function)
+        private string GenerateAggregateName(AggregateFunction function)
         {
             switch (function)
             {
@@ -117,17 +122,17 @@ namespace codequery.Drivers
             throw new Exception($"Could not map aggregate function '{function.ToString()}'");
         }
 
-        private object GenerateFields(SqlGenerator sql, FieldExpression[] arguments)
+        private void GenerateFields(SqlGenerator sql, FieldExpression[] arguments)
         {
-            return String.Join(" ,", arguments.Select(f => GenerateField(f, tabIndex)));
+            GenerateCommaSep(sql, arguments, field => GenerateField(sql, field));
         }
 
-        private string GenerateNamed(SqlGenerator sql, SourceFieldExpression named)
+        private string GenerateNamed(SourceFieldExpression named)
         {
             return $"{named.Source.Alias}.{named.Name}";
         }
 
-        private string GenerateConstant(SqlGenerator sql, ConstantExpression constant)
+        private string GenerateConstant(ConstantExpression constant)
         {
             switch (constant.FieldType)
             {
@@ -141,62 +146,85 @@ namespace codequery.Drivers
             throw new NotImplementedException($"Cannot generate constant of type {constant.FieldType}");
         }
 
-        private string GenereateSelectFields(SqlGenerator sql, SelectField[] fields)
+        private void GenerateCommaSep<T>(SqlGenerator sql, IEnumerable<T> fields, Action<T> callback) where T: class
         {
-            return String.Join(", ", fields.Select(f => {
-                var str = GenerateField(f.Expression, 0);
-                if (!String.IsNullOrEmpty(f.Alias)) 
+            foreach (var field in fields)
+            {
+                callback?.Invoke(field);
+                if (field != fields.Last())
                 {
-                    return str + $" AS {f.Alias}";
+                    sql.Add(", ");
                 }
-                return str;
-             }));
+            }
+        }
+        
+        private void GenereateSelectFields(SqlGenerator sql, SelectField[] fields)
+        {
+            GenerateCommaSep(sql, fields, field => {
+                GenerateField(sql, field.Expression);
+                if (!String.IsNullOrEmpty(field.Alias)) 
+                {
+                    sql.Add(" AS {field.Alias}");
+                }
+            });
         }
 
         public string GenerateSelect(SelectQuery query)
         {
             SqlGenerator sql = new SqlGenerator();
-            sql.AddLine("SELECT");
+            sql.Add("SELECT", true);
             sql.Indent();
             GenereateSelectFields(sql, query.Fields);
             sql.UnIndent();
-            sql.AddLine("FROM");
-
+            sql.Add("FROM", true);
+            
             GenerateSource(sql, query.From);
             if (query.Where != null)
             {
-                sql.AddLine("WHERE");
+                sql.Add("WHERE", true);
                 sql.Indent();
                 GenerateField(sql, query.Where);
+                sql.UnIndent();
             }
             if (query.GroupBy?.Length > 0)
             {
-                sql += " GROUP BY " + String.Join(", ", query.GroupBy.Select(s => GenerateField(s, 0)));
+                sql.Add("GROUP BY");
+                GenerateCommaSep(sql, query.GroupBy, f => GenerateField(sql, f));
             }
             if (query.OrderBy?.Length > 0)
             {
-                sql += " ORDER BY " + String.Join(", ", query.OrderBy.Select(s => GenerateField(s.By, 0) + (s.Ascending ? "ASC" : "DESC")));
+                sql.Add("ORDER BY");
+                GenerateCommaSep(sql, query.OrderBy, f => {
+                    GenerateField(sql, f.By);
+                    sql.Add(f.Ascending ? "ASC" : "DESC");
+                });
             }
-            return sql;
+            return sql.Generate();
         }
 
         private void GenerateSource(SqlGenerator sql, QuerySource from)
         {
             if (from is TableSource table) 
             {
-                sql.AddLine($"{table.Table} {table.Alias}");
+                sql.Add($"{table.Table} {table.Alias}");
                 return;
             }
+            // Select 10 as value
             if (from is ConstantSource constant)
             {
-                // sql.AddLine($"SELECT {GenereateSelectFields(constant.Fields)} {constant.Alias}");
+                sql.Add("(", true);
+                sql.Indent();
+                sql.Add("SELECT ");
+                GenereateSelectFields(sql, constant.Fields);
+                sql.UnIndent();
+                sql.Add(") {constant.Alias}");
                 return;
             }
             if (from is SubQuerySource sub) 
             {
-                // return $"{GenerateSource(sub.Source)}) {sub.Alias}";
+                sql.Add("(");
                 GenerateSource(sql, sub.Source);
-                // sql.add
+                sql.Add(") {constant.Alias}");
                 return;
             }
             throw new NotImplementedException($"Could not generate source from {from.GetType()}");

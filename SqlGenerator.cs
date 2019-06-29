@@ -24,17 +24,20 @@ namespace codequery
             indent--;
         }
         
-        public void Add(string content)
+        public void Add(string content, bool newline = false)
         {
             builder.Append(content);
+            if (newline)
+            {
+                NewLine();
+            }
         }
 
-        public void AddLine(string line)
+        public void NewLine()
         {
-            builder.Append(new String(' ', indent * 4) + line);
             builder.AppendLine();
+            builder.Append(new String(' ', indent * 4));
         }
-
         public string Generate()
         {
             return builder.ToString();
