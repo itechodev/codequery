@@ -24,7 +24,7 @@
 
 // This only lists the clases necessary to generate SQL
 // It's no safegauard for generating invalid SQL
-namespace codequery
+namespace codequery.Expressions
 {
     // There are three types of source
     // 1. Constant sources. Select 1, 2, 3
@@ -246,6 +246,38 @@ namespace codequery
         }
         public string Alias { get; set; }
         public FieldExpression Expression { set; get; }
+    }
+
+    public class OrderByClause
+    {
+        public SourceFieldExpression By { get; set; }
+        public bool Ascending { get; set; } = true;
+    }
+
+    public enum JoinType
+    {
+        Inner,
+        Left,
+        Rigth,
+        Full,
+        Cross
+    }
+
+    public class JoinClause
+    {
+        public string JoinType { get; set; }
+        public FieldExpression OnClause { get; set; }
+        public QuerySource Source { get; set; }
+    }
+
+    public class SelectQuery
+    {
+        public SelectField[] Fields { get; set; }
+        public QuerySource From { get; set; }
+        public JoinClause[] Joins { get; set; }
+        public FieldExpression Where { get; set; }
+        public SourceFieldExpression[] GroupBy { get; set; }
+        public OrderByClause[] OrderBy { get; set; }
     }
     
 }
