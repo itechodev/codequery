@@ -136,12 +136,33 @@ namespace codequery.Drivers
                 case FieldType.Char:
                     return $"'{constant.Value.ToString()}'";
             }
-            throw new NotImplementedException($"Cannot gerate constant of type {constant.FieldType}");
+            throw new NotImplementedException($"Cannot generate constant of type {constant.FieldType}");
         }
 
         public string GenerateSelect(SelectQuery query)
         {
-            string sql = "SELECT";
+            var fields = query.Fields.Select(f => {
+                var str = GenerateField(f.Expression, 0);
+                if (!String.IsNullOrEmpty(f.Alias)) 
+                {
+                    return str + $" AS {f.Alias}";
+                }
+                return str;
+             });
+            string sql = "SELECT ";
+            sql += String.Join(", ", fields);
+
+
+            // sql += $" FROM {GenerateFrom(query.From)}";
+            // if (query.Where != null)
+            // {
+            //     sql += " WHERE " + GenerateField(query.Where);
+            // }
+            // if (query.GroupBy?.Count() > 0)
+            // {
+            //     sql += " GROUP BY " + GenerateFields(query.GroupBy);
+            // }
+            // return sql;
 
             return sql;
         }
