@@ -33,6 +33,18 @@ namespace codequery
             }
         }
 
+        public void NewLineUnIndent()
+        {
+            UnIndent();
+            NewLine();
+        }
+
+        public void NewLineIndent()
+        {
+            Indent();
+            NewLine();
+        }
+
         public void NewLine()
         {
             builder.AppendLine();

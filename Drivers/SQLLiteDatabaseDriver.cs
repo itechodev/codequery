@@ -46,7 +46,7 @@ namespace codequery.Drivers
         private void GenerateMath(SqlGenerator sql, MathExpression math)
         {
             GenerateField(sql, math.Left);
-            sql.Add(OperatorStr(math.Op));
+            sql.Add(" " + OperatorStr(math.Op) + " ");
             GenerateField(sql, math.Right);
         }
 
@@ -124,7 +124,7 @@ namespace codequery.Drivers
 
         private void GenerateFields(SqlGenerator sql, FieldExpression[] arguments)
         {
-            GenerateCommaSep(sql, arguments, field => GenerateField(sql, field));
+            GenerateCommaSep(sql, arguments, false, field => GenerateField(sql, field));
         }
 
         private string GenerateNamed(SourceFieldExpression named)
@@ -146,7 +146,7 @@ namespace codequery.Drivers
             throw new NotImplementedException($"Cannot generate constant of type {constant.FieldType}");
         }
 
-        private void GenerateCommaSep<T>(SqlGenerator sql, IEnumerable<T> fields, Action<T> callback) where T: class
+        private void GenerateCommaSep<T>(SqlGenerator sql, IEnumerable<T> fields, bool newline, Action<T> callback) where T: class
         {
             foreach (var field in fields)
             {
@@ -154,13 +154,17 @@ namespace codequery.Drivers
                 if (field != fields.Last())
                 {
                     sql.Add(", ");
+                    if (newline)
+                    {
+                        sql.NewLine();
+                    }
                 }
             }
         }
         
         private void GenereateSelectFields(SqlGenerator sql, SelectField[] fields)
         {
-            GenerateCommaSep(sql, fields, field => {
+            GenerateCommaSep(sql, fields, true, field => {
                 GenerateField(sql, field.Expression);
                 if (!String.IsNullOrEmpty(field.Alias)) 
                 {
@@ -173,31 +177,30 @@ namespace codequery.Drivers
         {
             SqlGenerator sql = new SqlGenerator();
             sql.Add("SELECT");
-            sql.Indent();
-            sql.NewLine();
-
+            sql.NewLineIndent();
             GenereateSelectFields(sql, query.Fields);
-            sql.UnIndent();
-            sql.NewLine();
-            sql.Add("FROM", true);
-            
+            sql.NewLineUnIndent();
+            sql.Add("FROM");
+            sql.NewLineIndent();
             GenerateSource(sql, query.From);
+            sql.NewLineUnIndent();
+
             if (query.Where != null)
             {
-                sql.Add("WHERE", true);
-                sql.Indent();
+                sql.Add("WHERE");
+                sql.NewLineIndent();
                 GenerateField(sql, query.Where);
-                sql.UnIndent();
+                sql.NewLineUnIndent();
             }
             if (query.GroupBy?.Length > 0)
             {
                 sql.Add("GROUP BY");
-                GenerateCommaSep(sql, query.GroupBy, f => GenerateField(sql, f));
+                GenerateCommaSep(sql, query.GroupBy, false, f => GenerateField(sql, f));
             }
             if (query.OrderBy?.Length > 0)
             {
                 sql.Add("ORDER BY");
-                GenerateCommaSep(sql, query.OrderBy, f => {
+                GenerateCommaSep(sql, query.OrderBy, false, f => {
                     GenerateField(sql, f.By);
                     sql.Add(f.Ascending ? "ASC" : "DESC");
                 });

@@ -16,6 +16,7 @@ namespace codequery
                 new SelectField(new SourceFieldExpression(FieldType.Int, "age", person), null),
             };
             select.From = person;
+            select.Where = new MathExpression(FieldType.Bool, new SourceFieldExpression(FieldType.Int, "age", person), FieldMathOperator.GreaterEqualThan, new ConstantExpression(FieldType.Int, 18)); 
 
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
             Console.WriteLine(driver.GenerateSelect(select));
