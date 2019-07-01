@@ -178,8 +178,8 @@ namespace codequery.Expressions
         public RowFunctionExpression(FieldType type, FieldRowFunctionType function, params FieldExpression[] arguments): base(type, arguments)
         {
             this.Function = function;
-
         }
+        
         public FieldRowFunctionType Function { get; set; }
     }
 
