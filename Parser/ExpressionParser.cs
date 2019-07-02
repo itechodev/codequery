@@ -16,17 +16,21 @@ namespace codequery.Parser
 
         public FieldExpression ParseField(Expression exp)
         {
+            if (exp is System.Linq.Expressions.ConstantExpression constant)
+            {
+                return ParseConstant(constant);
+            }
+            // params... => body
+            if (exp is LambdaExpression lambda)
+            {
+                return ParseLambda(lambda.Parameters.ToArray(), ParseField(lambda.Body));
+            }
             // .Select(s => s)
             // QuoteExpression
             if (exp is UnaryExpression un)
             {
                 // un.Method?
                 return ParseField(un.Operand);
-            }
-            // u => u.Name == "Willy"
-            if (exp is LambdaExpression lambda)
-            {
-                return ParseField(lambda.Body);
             }
             // new { ... }
             if (exp is NewExpression newx)
@@ -35,17 +39,21 @@ namespace codequery.Parser
             //     var list = newx.Arguments.Select((a,i) => ParseField(a, newx.Members[i].Name)).ToArray();
             //     return new FieldList(list);
             }
-            if (exp is System.Linq.Expressions.ConstantExpression constant)
+            if (exp is ParameterExpression param)
             {
-                return ParseConstant(constant);
+                // s => [s].Active
+                // param.Name ==
+                // param.Type
             }
-            // u.Name
-            if (exp is MethodCallExpression call)
-            {
-                return ParseMethodCall(call);
-            }
+            // x => [x.Active]
             if (exp is MemberExpression member)
             {
+                // Source (x)
+                var source = ParseField(member.Expression);
+                // Active
+                var memberName = member.Member.Name;
+                // Get Query Sourve by memberExpression
+                return new SourceFieldExpression(source.FieldType, memberName, null);
                 // // member.Member.Name == "name"
                 // if (member.Expression is ParameterExpression p)
                 // {
@@ -62,13 +70,20 @@ namespace codequery.Parser
                 //     return new FieldName(member.Member.Name, GetSourceFromType(p.Type));
                 // }
             }
+
+            // u.Name
+            if (exp is MethodCallExpression call)
+            {
+                return ParseMethodCall(call);
+            }
             if (exp is BinaryExpression bin)
             {
                 return ParseBinaryExpression(bin);
             }
             throw new NotImplementedException();
         }
-
+       
+        
         private QuerySource GetSourceFromType(Type type)
         {
             // if (type == _query.From.Type)

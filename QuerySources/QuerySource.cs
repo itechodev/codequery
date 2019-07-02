@@ -1,6 +1,7 @@
 using System;
 using System.Linq.Expressions;
 using codequery.Expressions;
+using codequery.Parser;
 
 namespace codequery.QuerySources
 {
@@ -8,20 +9,26 @@ namespace codequery.QuerySources
     {
         private SelectQuery _query { get; set; }
 
+        private ExpressionParser _parser { get; set; }
+
         public QuerySource()
         {
             _query = new SelectQuery();
+            _parser = new ExpressionParser(_query);
         }
 
         public PostSelectQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
         {
-            //
             return new PostSelectQuerySource<N>();
         }
 
         public QuerySource<T> Where(Expression<Func<T, bool>> predicate)
         {
             // x => x.Field. > 10...
+            // .Where(s => s.Active)
+            // .Where(s => s.UID.Contains("11"))
+            var clause = _parser.ParseField(predicate);
+            
             return this;
         }
     }

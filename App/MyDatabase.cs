@@ -35,7 +35,12 @@ namespace codequery.App
 
     public class MyDatabase : Database
     {
-        public DatabaseTable<Station> Stations { get; set; }        
+        public DatabaseTable<Station> Stations { get; set; }
+
+        public MyDatabase()
+        {
+            Stations = new DatabaseTable<Station>();
+        }  
     }
 
     public class Application
@@ -44,7 +49,8 @@ namespace codequery.App
         {
             var db = new MyDatabase();
             db.Stations
-                .Where(s => s.Active)
+                .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
+                // .Where(s => s.UID.Contains("11"))
                 .Select(s => s.FarmId)
                 .FetchArray();
         }
