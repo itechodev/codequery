@@ -38,6 +38,11 @@ namespace codequery.Expressions
             Alias = alias;
         }
         public string Alias { get; set; }
+
+        public FieldType GetColumnType(string name)
+        {
+            return FieldType.String;
+        }
     }
 
     public class TableSource : QuerySource

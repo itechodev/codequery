@@ -5,6 +5,34 @@ using codequery.Expressions;
 
 namespace codequery.Parser
 {
+    public class QuerySourceType
+    {
+        public QuerySource Source { get; set; }
+        public Type Type { get; set; }
+    }
+    public class ParserScope
+    {
+
+        public ParserScope(ParameterExpression[] parameters)
+        {
+            Parameters = parameters;
+        }
+
+        public ParameterExpression[] Parameters { get; set; }
+        public QuerySourceType[] QuerySourceTypes  { get; set; }
+
+        public ParameterExpression FindParamByType(Type type)
+        {
+            return Parameters.FirstOrDefault(p => p.Type == type);
+        }
+
+        public QuerySource GetSourceByType(Type type)
+        {
+            var qs = QuerySourceTypes.FirstOrDefault(q => q.Type == type);
+            return qs?.Source;
+        }
+    }
+
     public class ExpressionParser
     {
         private SelectQuery _query;
@@ -14,7 +42,7 @@ namespace codequery.Parser
             _query = query;
         }
 
-        public SqlExpression ParseField(Expression exp)
+        public SqlExpression ToSqlExpression(Expression exp, ParserScope scope = null)
         {
             if (exp is System.Linq.Expressions.ConstantExpression constant)
             {
@@ -23,15 +51,16 @@ namespace codequery.Parser
             // params... => body
             if (exp is LambdaExpression lambda)
             {
-                // return ParseLambda(lambda.Parameters.ToArray(), ParseField(lambda.Body));
-                return null;
+                // save original parameters
+                var newScope = new ParserScope(lambda.Parameters.ToArray());
+                return ToSqlExpression(lambda.Body, newScope);
             }
             // .Select(s => s)
             // QuoteExpression
             if (exp is UnaryExpression un)
             {
                 // un.Method?
-                return ParseField(un.Operand);
+                return ToSqlExpression(un.Operand);
             }
             // new { ... }
             if (exp is NewExpression newx)
@@ -40,46 +69,32 @@ namespace codequery.Parser
             //     var list = newx.Arguments.Select((a,i) => ParseField(a, newx.Members[i].Name)).ToArray();
             //     return new FieldList(list);
             }
-            if (exp is ParameterExpression param)
-            {
-                // s => [s].Active
-                // param.Name ==
-                // param.Type
-            }
+            
             // x => [x.Active]
             if (exp is MemberExpression member)
             {
-                // Source (x)
-                var source = ParseField(member.Expression);
-                // Active
-                var memberName = member.Member.Name;
-                // Get Query Sourve by memberExpression
-                return new SqlColumnExpression(source.FieldType, memberName, null);
-                // // member.Member.Name == "name"
-                // if (member.Expression is ParameterExpression p)
-                // {
-                //     // If Group by Field then .Key = grouped field
-                //     if (_query.From is FromGroup group)
-                //     {
-                //         if (_query.GroupBy.Count() == 1)
-                //         {
-                //             return _query.GroupBy.First();
-                //         }
-                //         return new FieldList(_query.GroupBy);
-                //     }
-                //     // member.Member
-                //     return new FieldName(member.Member.Name, GetSourceFromType(p.Type));
-                // }
+                if (member.Expression is ParameterExpression param)
+                {
+                    // s => [s].Active
+                    var memberName = member.Member.Name;
+                    var source = scope.GetSourceByType(param.Type);
+                    // Get Query Sourve by memberExpression
+                    return new SqlColumnExpression(source.GetColumnType(memberName), memberName, source);
+                    // param.Name ==
+                    // param.Type
+                }
+
+                throw new NotImplementedException();   
             }
 
             // u.Name
             if (exp is MethodCallExpression call)
             {
-                return ParseMethodCall(call);
+                return ParseMethodCall(call, scope);
             }
             if (exp is BinaryExpression bin)
             {
-                return ParseBinaryExpression(bin);
+                return ParseBinaryExpression(bin, scope);
             }
             throw new NotImplementedException();
         }
@@ -123,83 +138,38 @@ namespace codequery.Parser
             throw new NotImplementedException();
         }
 
-        private SqlExpression ParseMethodCall(MethodCallExpression call)
+        private SqlExpression ParseMethodCall(MethodCallExpression call, ParserScope scope)
         {
-            // A function on a object
-            // Either from a Primitive or Aggregate 
-            
-            // var param = call.Object as ParameterExpression;
-            // if (_query.From is FromGroup group)
-            // {
-            //     // Grouped by _query.GrouBy
-            //     // call.Type should be  AggregateSource<T, Q>. 
-            //     // All calls here access method / members on AggregateSource 
-            //     var args = call.Arguments.Select(a => ParseField(a)).ToList();
-            //     if (call.Method.Name == "CountDistinct")
-            //     {
-            //         // Count(distinct ...)
-            //         return new FieldAggregate(AggregateFunction.Count, new List<Field> {
-            //             new FieldRowFunction(FieldRowFunctionType.Distinct, args.ToArray())
-            //         });
-            //     }
-            //     if (call.Method.Name == "Count")
-            //     {
-            //         if (args.Count() == 0)
-            //         {
-            //             args = new List<Field> { new FieldSpecial(FieldSpecialType.All) };
-            //         }
-            //         // Count cannot have arguments?
-            //         return new FieldAggregate(AggregateFunction.Count, args);
-            //     }
-            //     throw new NotImplementedException();
-            // }
-
-            
-
-            // // _query.From
-            // if (call.Type == typeof(string))
-            // {
-            //     // First check casts
-            //     if (call.Method.Name == "ToString")
-            //     {
-            //         return new FieldCast(ParseField(call.Object), FieldType.String);
-            //     }
-            //     // All string functions here
-            //     // with call.Argu,ents
-            //     // call.Method.Name == "ToLower";
-            //     var args = call.Arguments.Select(a => ParseField(a)).ToList();
-            //     return new FieldFunction(ToStringFunctionType(call.Method.Name), ParseField(call.Object), args.ToArray());
-            // }
-            throw new NotImplementedException();
+            // Parse all arguments
+            var arguments = call.Arguments.Select(a => ToSqlExpression(a, scope)).ToArray();
+            var (returnType, function) = ToStringFunctionType(call.Type, call.Method.Name);
+            var body = ToSqlExpression(call.Object, scope);
+            return new SqlFunctionExpression(returnType, body, function, arguments);
         }
 
-        private FieldFunctionType ToStringFunctionType(string name)
+        private (FieldType, FieldFunctionType) ToStringFunctionType(Type type, string name)
         {
             switch (name)
             {
                 case "ToLower":
-                    return FieldFunctionType.Lower;
+                    return (FieldType.String, FieldFunctionType.Lower);
                 case "ToUpper":
-                    return FieldFunctionType.Upper;
+                    return (FieldType.String, FieldFunctionType.Upper);
                 case "Substring":
-                    return FieldFunctionType.Substring;
+                    return (FieldType.String, FieldFunctionType.Substring);
             }
             throw new NotImplementedException();
         }
 
-        public SqlMathExpression ParseBinaryExpression(BinaryExpression bin)
+        public SqlMathExpression ParseBinaryExpression(BinaryExpression bin, ParserScope scope)
         {
-            var left = ParseField(bin.Left);
-            var right = ParseField(bin.Right);
-            if (left.FieldType == FieldType.String)
-            {
-                return new SqlMathExpression(left.FieldType, left, FieldMathOperator.StringConcat, right);
-            } 
+            var left = ToSqlExpression(bin.Left, scope);
+            var right = ToSqlExpression(bin.Right, scope);
             
-            return new SqlMathExpression(left.FieldType, left, ParseOperator(bin.NodeType), right);
+            return new SqlMathExpression(left.FieldType, left, ParseOperator(left.FieldType, right.FieldType, bin.NodeType), right);
         }
 
-        private FieldMathOperator ParseOperator(ExpressionType nodeType)
+        private FieldMathOperator ParseOperator(FieldType left, FieldType right, ExpressionType nodeType)
         {
             if (nodeType == ExpressionType.Equal)
             {
@@ -211,6 +181,11 @@ namespace codequery.Parser
             }
             if (nodeType == ExpressionType.Add)
             {
+                // x + string == string
+                if (left == FieldType.String || right == FieldType.String)
+                {
+                    return FieldMathOperator.StringConcat;
+                }
                 return FieldMathOperator.Plus;
             }
             if (nodeType == ExpressionType.GreaterThan)

@@ -27,7 +27,7 @@ namespace codequery.QuerySources
             // x => x.Field. > 10...
             // .Where(s => s.Active)
             // .Where(s => s.UID.Contains("11"))
-            var clause = _parser.ParseField(predicate);
+            var clause = _parser.ToSqlExpression(predicate);
             
             return this;
         }
