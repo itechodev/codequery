@@ -24,12 +24,33 @@
 
 // This only lists the clases necessary to generate SQL
 // It's no safegauard for generating invalid SQL
+using System;
+using System.Linq;
+
 namespace codequery.Expressions
 {
     // There are three types of source
     // 1. Constant sources. Select 1, 2, 3
     // 2. Table souces. The most obvious: Select * from table
     // 3. SubQuery. Query from another query. Select * from (select 1)
+
+    public class QuerySourceField
+    {
+        public QuerySourceField(string name, FieldType type)
+        {
+            this.Name = name;
+            this.Type = type;
+
+        }
+        public QuerySourceField(string name, FieldType type, string alias) 
+        {
+            this.Name = name;
+            this.Type = type;
+               
+        }
+        public string Name { get; set; }
+        public FieldType Type { get; set; }
+    }
 
     public abstract class QuerySource
     {
@@ -38,10 +59,16 @@ namespace codequery.Expressions
             Alias = alias;
         }
         public string Alias { get; set; }
+        public QuerySourceField[] Columns { get; set; }
 
         public FieldType GetColumnType(string name)
         {
-            return FieldType.String;
+            var col = Columns.FirstOrDefault(c => c.Name == name);
+            if (col == null)
+            {
+                throw new Exception($"Could not map column {name} to a source/");
+            }
+            return col.Type;
         }
     }
 
@@ -84,13 +111,13 @@ namespace codequery.Expressions
         Binary,
         Bool
     }
-    
+
     // The base of any expression as in: select [expression].. where [expression]
     public abstract class SqlExpression
     {
         public FieldType FieldType { get; set; }
 
-        public SqlExpression(FieldType type) 
+        public SqlExpression(FieldType type)
         {
             FieldType = type;
         }
@@ -105,7 +132,7 @@ namespace codequery.Expressions
     // Can also be a count(*)
     public class SqlConstantExpression : SqlExpression
     {
-        public SqlConstantExpression(FieldType type, object value): base(type)
+        public SqlConstantExpression(FieldType type, object value) : base(type)
         {
             this.Value = value;
         }
@@ -114,11 +141,11 @@ namespace codequery.Expressions
 
     // Not a function or aggregate
     // CAST(9.5 AS INT)
-    
+
     public class SqlCastExpression : SqlExpression
     {
         // Casst field to type
-        public SqlCastExpression(FieldType type, SqlExpression field): base(type)
+        public SqlCastExpression(FieldType type, SqlExpression field) : base(type)
         {
             Field = field;
         }
@@ -129,16 +156,16 @@ namespace codequery.Expressions
     // Named query field like a.Age, a.name from [Source] a
     public class SqlColumnExpression : SqlExpression
     {
-        public SqlColumnExpression(FieldType type, string name, QuerySource source): base(type)
+        public SqlColumnExpression(FieldType type, string name, QuerySource source) : base(type)
         {
             Name = name;
             Source = source;
         }
-        
+
         public string Name { get; set; }
         public QuerySource Source { get; set; }
     }
-    
+
     // List of aggregate functions codeQuery supports
     // Item to be added
     public enum AggregateFunction
@@ -152,7 +179,7 @@ namespace codequery.Expressions
 
     public abstract class SqlCallbackExpression : SqlExpression
     {
-          public SqlCallbackExpression(FieldType type, SqlExpression body,  params SqlExpression[] arguments): base(type)
+        public SqlCallbackExpression(FieldType type, SqlExpression body, params SqlExpression[] arguments) : base(type)
         {
             this.Arguments = arguments;
             this.Body = body;
@@ -165,7 +192,7 @@ namespace codequery.Expressions
     // count(a.id), sum(b.value)
     public class AggregateExpression : SqlCallbackExpression
     {
-        public AggregateExpression(FieldType type, SqlExpression body, AggregateFunction function, params SqlExpression[] arguments): base(type, body, arguments)
+        public AggregateExpression(FieldType type, SqlExpression body, AggregateFunction function, params SqlExpression[] arguments) : base(type, body, arguments)
         {
             this.Function = function;
         }
@@ -182,11 +209,11 @@ namespace codequery.Expressions
     // Not the same a function
     public class RowFunctionExpression : SqlCallbackExpression
     {
-        public RowFunctionExpression(FieldType type, SqlExpression body, FieldRowFunctionType function, params SqlExpression[] arguments): base(type, body, arguments)
+        public RowFunctionExpression(FieldType type, SqlExpression body, FieldRowFunctionType function, params SqlExpression[] arguments) : base(type, body, arguments)
         {
             this.Function = function;
         }
-        
+
         public FieldRowFunctionType Function { get; set; }
     }
 
@@ -203,10 +230,10 @@ namespace codequery.Expressions
         Replace,
         Contains
     }
-    
+
     public class SqlFunctionExpression : SqlCallbackExpression
     {
-        public SqlFunctionExpression(FieldType type, SqlExpression body, FieldFunctionType function, params SqlExpression[] arguments): base(type, body, arguments)
+        public SqlFunctionExpression(FieldType type, SqlExpression body, FieldFunctionType function, params SqlExpression[] arguments) : base(type, body, arguments)
         {
             this.Function = function;
 
@@ -288,5 +315,5 @@ namespace codequery.Expressions
         public SqlColumnExpression[] GroupBy { get; set; }
         public OrderByClause[] OrderBy { get; set; }
     }
-    
+
 }

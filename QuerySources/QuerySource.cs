@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using codequery.Expressions;
 using codequery.Parser;
@@ -68,6 +69,51 @@ namespace codequery.QuerySources
         }
 
         // Tables to be declared in derived table
+        public Database()
+        {
+            // Instantiate all members
+            // and get column fields
+            var tables = this.GetType()
+                .GetProperties()
+                .Where(p => p.PropertyType.GetGenericTypeDefinition() == typeof(DatabaseTable<>));
+
+            foreach (var prop in tables)
+            {
+                var instance = Activator.CreateInstance(prop.PropertyType) as QuerySource;
+                instance.Columns = instance
+                    .GetType()
+                    .GetProperties()
+                    .Select(p => new QuerySourceField(p.Name, ToSqlField(p.PropertyType)))
+                    .ToArray();
+
+                prop.SetValue(this, instance);
+            }            
+        }
+
+        private FieldType ToSqlField(Type propertyType)
+        {
+            switch (Type.GetTypeCode(propertyType.GetType()))
+            {
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                    return FieldType.Char;
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                    return FieldType.Int;
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return FieldType.Double;
+                case TypeCode.String:
+                    return FieldType.String;
+                default:
+                    throw new Exception($"Could not map type C# type '{propertyType.ToString()}' to SQL type ");
+            }
+        }
     }
 
 

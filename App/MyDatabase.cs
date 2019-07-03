@@ -36,11 +36,6 @@ namespace codequery.App
     public class MyDatabase : Database
     {
         public DatabaseTable<Station> Stations { get; set; }
-
-        public MyDatabase()
-        {
-            Stations = new DatabaseTable<Station>();
-        }  
     }
 
     public class Application
