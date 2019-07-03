@@ -34,15 +34,15 @@ namespace codequery.Expressions
     // 2. Table souces. The most obvious: Select * from table
     // 3. SubQuery. Query from another query. Select * from (select 1)
 
-    public class QuerySourceField
+    public class SqlQuerySourceField
     {
-        public QuerySourceField(string name, FieldType type)
+        public SqlQuerySourceField(string name, FieldType type)
         {
             this.Name = name;
             this.Type = type;
 
         }
-        public QuerySourceField(string name, FieldType type, string alias) 
+        public SqlQuerySourceField(string name, FieldType type, string alias) 
         {
             this.Name = name;
             this.Type = type;
@@ -52,14 +52,14 @@ namespace codequery.Expressions
         public FieldType Type { get; set; }
     }
 
-    public abstract class QuerySource
+    public abstract class SqlQuerySource
     {
-        public QuerySource(string alias)
+        public SqlQuerySource(string alias)
         {
             Alias = alias;
         }
         public string Alias { get; set; }
-        public QuerySourceField[] Columns { get; set; }
+        public SqlQuerySourceField[] Columns { get; set; }
 
         public FieldType GetColumnType(string name)
         {
@@ -72,19 +72,19 @@ namespace codequery.Expressions
         }
     }
 
-    public class TableSource : QuerySource
+    public class SqlTableSource : SqlQuerySource
     {
         public string Table { get; set; }
 
-        public TableSource(string table, string alias) : base(alias)
+        public SqlTableSource(string table, string alias) : base(alias)
         {
             Table = table;
         }
     }
 
-    public class ConstantSource : QuerySource
+    public class SqlConstantSource : SqlQuerySource
     {
-        public ConstantSource(string alias, params SelectField[] fields) : base(alias)
+        public SqlConstantSource(string alias, params SelectField[] fields) : base(alias)
         {
             Fields = fields;
         }
@@ -92,14 +92,14 @@ namespace codequery.Expressions
         public SelectField[] Fields { get; private set; }
     }
 
-    public class SubQuerySource : QuerySource
+    public class SqlSubQuerySource : SqlQuerySource
     {
-        public SubQuerySource(QuerySource source, string alias) : base(alias)
+        public SqlSubQuerySource(SqlQuerySource source, string alias) : base(alias)
         {
             Source = source;
         }
 
-        public QuerySource Source { get; private set; }
+        public SqlQuerySource Source { get; private set; }
     }
 
     public enum FieldType
@@ -156,14 +156,14 @@ namespace codequery.Expressions
     // Named query field like a.Age, a.name from [Source] a
     public class SqlColumnExpression : SqlExpression
     {
-        public SqlColumnExpression(FieldType type, string name, QuerySource source) : base(type)
+        public SqlColumnExpression(FieldType type, string name, SqlQuerySource source) : base(type)
         {
             Name = name;
             Source = source;
         }
 
         public string Name { get; set; }
-        public QuerySource Source { get; set; }
+        public SqlQuerySource Source { get; set; }
     }
 
     // List of aggregate functions codeQuery supports
@@ -303,13 +303,13 @@ namespace codequery.Expressions
     {
         public string JoinType { get; set; }
         public SqlExpression OnClause { get; set; }
-        public QuerySource Source { get; set; }
+        public SqlQuerySource Source { get; set; }
     }
 
     public class SelectQuery
     {
         public SelectField[] Fields { get; set; }
-        public QuerySource From { get; set; }
+        public SqlQuerySource From { get; set; }
         public JoinClause[] Joins { get; set; }
         public SqlExpression Where { get; set; }
         public SqlColumnExpression[] GroupBy { get; set; }

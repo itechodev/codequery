@@ -53,7 +53,7 @@ namespace codequery.App
         private void SqlBuilder()
         {
             var select = new SelectQuery();
-            var person = new TableSource("Person", "p");
+            var person = new SqlTableSource("Person", "p");
             select.Fields = new SelectField[]
             {
                 new SelectField(new SqlColumnExpression(FieldType.String, "name", person), null),

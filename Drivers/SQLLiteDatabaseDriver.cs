@@ -208,15 +208,15 @@ namespace codequery.Drivers
             return sql.Generate();
         }
 
-        private void GenerateSource(SqlGenerator sql, QuerySource from)
+        private void GenerateSource(SqlGenerator sql, SqlQuerySource from)
         {
-            if (from is TableSource table) 
+            if (from is SqlTableSource table) 
             {
                 sql.Add($"{table.Table} {table.Alias}");
                 return;
             }
             // Select 10 as value
-            if (from is ConstantSource constant)
+            if (from is SqlConstantSource constant)
             {
                 sql.Add("(", true);
                 sql.Indent();
@@ -226,7 +226,7 @@ namespace codequery.Drivers
                 sql.Add(") {constant.Alias}");
                 return;
             }
-            if (from is SubQuerySource sub) 
+            if (from is SqlSubQuerySource sub) 
             {
                 sql.Add("(");
                 GenerateSource(sql, sub.Source);

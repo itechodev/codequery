@@ -7,7 +7,7 @@ namespace codequery.Parser
 {
     public class QuerySourceType
     {
-        public QuerySource Source { get; set; }
+        public SqlQuerySource Source { get; set; }
         public Type Type { get; set; }
     }
     public class ParserScope
@@ -26,7 +26,7 @@ namespace codequery.Parser
             return Parameters.FirstOrDefault(p => p.Type == type);
         }
 
-        public QuerySource GetSourceByType(Type type)
+        public SqlQuerySource GetSourceByType(Type type)
         {
             var qs = QuerySourceTypes.FirstOrDefault(q => q.Type == type);
             return qs?.Source;
@@ -100,7 +100,7 @@ namespace codequery.Parser
         }
        
         
-        private QuerySource GetSourceFromType(Type type)
+        private SqlQuerySource GetSourceFromType(Type type)
         {
             // if (type == _query.From.Type)
             // {

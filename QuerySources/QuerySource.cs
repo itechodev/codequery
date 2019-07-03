@@ -79,11 +79,12 @@ namespace codequery.QuerySources
 
             foreach (var prop in tables)
             {
-                var instance = Activator.CreateInstance(prop.PropertyType) as QuerySource;
-                instance.Columns = instance
+                var instance = Activator.CreateInstance(prop.PropertyType);
+                var q = instance as SqlQuerySource;
+                q.Columns = instance
                     .GetType()
                     .GetProperties()
-                    .Select(p => new QuerySourceField(p.Name, ToSqlField(p.PropertyType)))
+                    .Select(p => new SqlQuerySourceField(p.Name, ToSqlField(p.PropertyType)))
                     .ToArray();
 
                 prop.SetValue(this, instance);
