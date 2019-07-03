@@ -140,10 +140,15 @@ namespace codequery.Parser
 
         private SqlExpression ParseMethodCall(MethodCallExpression call, ParserScope scope)
         {
+            var body = ToSqlExpression(call.Object, scope);
+            // check for special cases for casting
+            if (call.Method.Name == "ToString" && call.Method.ReflectedType == typeof(string))
+            {
+                return new SqlCastExpression(FieldType.String, body);
+            }
             // Parse all arguments
             var arguments = call.Arguments.Select(a => ToSqlExpression(a, scope)).ToArray();
             var (returnType, function) = ToStringFunctionType(call.Type, call.Method.Name);
-            var body = ToSqlExpression(call.Object, scope);
             return new SqlFunctionExpression(returnType, body, function, arguments);
         }
 
