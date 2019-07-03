@@ -34,23 +34,7 @@ namespace codequery.Expressions
     // 2. Table souces. The most obvious: Select * from table
     // 3. SubQuery. Query from another query. Select * from (select 1)
 
-    public class SqlQuerySourceField
-    {
-        public SqlQuerySourceField(string name, FieldType type)
-        {
-            this.Name = name;
-            this.Type = type;
-
-        }
-        public SqlQuerySourceField(string name, FieldType type, string alias) 
-        {
-            this.Name = name;
-            this.Type = type;
-               
-        }
-        public string Name { get; set; }
-        public FieldType Type { get; set; }
-    }
+   
 
     public abstract class SqlQuerySource
     {
@@ -59,16 +43,10 @@ namespace codequery.Expressions
             Alias = alias;
         }
         public string Alias { get; set; }
-        public SqlQuerySourceField[] Columns { get; set; }
-
+        
         public FieldType GetColumnType(string name)
         {
-            var col = Columns.FirstOrDefault(c => c.Name == name);
-            if (col == null)
-            {
-                throw new Exception($"Could not map column {name} to a source/");
-            }
-            return col.Type;
+            return FieldType.String;
         }
     }
 

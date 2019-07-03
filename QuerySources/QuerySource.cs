@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using codequery.Expressions;
@@ -54,6 +55,24 @@ namespace codequery.QuerySources
 
     }
     
+    public class TableColumn
+    {
+        public TableColumn(string name, FieldType type)
+        {
+            this.Name = name;
+            this.Type = type;
+
+        }
+        public TableColumn(string name, FieldType type, string alias) 
+        {
+            this.Name = name;
+            this.Type = type;
+        }
+        // More to come like precision length etc.
+        public string Name { get; set; }
+        public FieldType Type { get; set; }
+    }
+
     public class Database
     {
         // Constant source queries
@@ -68,6 +87,8 @@ namespace codequery.QuerySources
             return new QuerySource<T>();
         }
 
+        private static Dictionary<Type, TableColumn[]> TableColumns = new Dictionary<Type, TableColumn[]>();
+
         // Tables to be declared in derived table
         public Database()
         {
@@ -80,21 +101,29 @@ namespace codequery.QuerySources
             foreach (var prop in tables)
             {
                 var instance = Activator.CreateInstance(prop.PropertyType);
-                var q = instance as SqlQuerySource;
-                q.Columns = instance
-                    .GetType()
+                prop.SetValue(this, instance);
+
+                var columns = prop.PropertyType.GenericTypeArguments[0]
                     .GetProperties()
-                    .Select(p => new SqlQuerySourceField(p.Name, ToSqlField(p.PropertyType)))
+                    .Select(p => new TableColumn(p.Name, ToSqlField(p.PropertyType)))
                     .ToArray();
 
-                prop.SetValue(this, instance);
+                TableColumns.Add(prop.PropertyType, columns);
             }            
         }
 
         private FieldType ToSqlField(Type propertyType)
         {
-            switch (Type.GetTypeCode(propertyType.GetType()))
+            var nullableType = Nullable.GetUnderlyingType(propertyType);
+            if (nullableType != null)
             {
+                // Nullable type
+                propertyType = nullableType;
+            }
+            switch (Type.GetTypeCode(propertyType))
+            {
+                case TypeCode.Boolean:
+                    return FieldType.Bool;
                 case TypeCode.Byte:
                 case TypeCode.SByte:
                     return FieldType.Char;
