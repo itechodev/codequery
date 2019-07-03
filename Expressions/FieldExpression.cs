@@ -147,18 +147,20 @@ namespace codequery.Expressions
 
     public abstract class SqlCallbackExpression : SqlExpression
     {
-          public SqlCallbackExpression(FieldType type, params SqlExpression[] arguments): base(type)
+          public SqlCallbackExpression(FieldType type, SqlExpression body,  params SqlExpression[] arguments): base(type)
         {
             this.Arguments = arguments;
+            this.Body = body;
         }
 
         public SqlExpression[] Arguments { get; set; }
+        public SqlExpression Body { get; set; }
     }
 
     // count(a.id), sum(b.value)
     public class AggregateExpression : SqlCallbackExpression
     {
-        public AggregateExpression(FieldType type, AggregateFunction function, params SqlExpression[] arguments): base(type, arguments)
+        public AggregateExpression(FieldType type, SqlExpression body, AggregateFunction function, params SqlExpression[] arguments): base(type, body, arguments)
         {
             this.Function = function;
         }
@@ -175,7 +177,7 @@ namespace codequery.Expressions
     // Not the same a function
     public class RowFunctionExpression : SqlCallbackExpression
     {
-        public RowFunctionExpression(FieldType type, FieldRowFunctionType function, params SqlExpression[] arguments): base(type, arguments)
+        public RowFunctionExpression(FieldType type, SqlExpression body, FieldRowFunctionType function, params SqlExpression[] arguments): base(type, body, arguments)
         {
             this.Function = function;
         }
@@ -199,7 +201,7 @@ namespace codequery.Expressions
     
     public class SqlFunctionExpression : SqlCallbackExpression
     {
-        public SqlFunctionExpression(FieldType type, FieldFunctionType function, params SqlExpression[] arguments): base(type, arguments)
+        public SqlFunctionExpression(FieldType type, SqlExpression body, FieldFunctionType function, params SqlExpression[] arguments): base(type, body, arguments)
         {
             this.Function = function;
 
