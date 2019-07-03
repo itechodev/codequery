@@ -81,11 +81,11 @@ namespace codequery.Expressions
     }
     
     // The base of any expression as in: select [expression].. where [expression]
-    public abstract class FieldExpression
+    public abstract class SqlExpression
     {
         public FieldType FieldType { get; set; }
 
-        public FieldExpression(FieldType type) 
+        public SqlExpression(FieldType type) 
         {
             FieldType = type;
         }
@@ -98,9 +98,9 @@ namespace codequery.Expressions
 
     // Select 1
     // Can also be a count(*)
-    public class ConstantExpression : FieldExpression
+    public class SqlConstantExpression : SqlExpression
     {
-        public ConstantExpression(FieldType type, object value): base(type)
+        public SqlConstantExpression(FieldType type, object value): base(type)
         {
             this.Value = value;
         }
@@ -110,21 +110,21 @@ namespace codequery.Expressions
     // Not a function or aggregate
     // CAST(9.5 AS INT)
     
-    public class CastExpession : FieldExpression
+    public class SqlCastExpression : SqlExpression
     {
         // Casst field to type
-        public CastExpession(FieldType type, FieldExpression field): base(type)
+        public SqlCastExpression(FieldType type, SqlExpression field): base(type)
         {
             Field = field;
         }
 
-        public FieldExpression Field { get; set; }
+        public SqlExpression Field { get; set; }
     }
 
     // Named query field like a.Age, a.name from [Source] a
-    public class SourceFieldExpression : FieldExpression
+    public class SqlColumnExpression : SqlExpression
     {
-        public SourceFieldExpression(FieldType type, string name, QuerySource source): base(type)
+        public SqlColumnExpression(FieldType type, string name, QuerySource source): base(type)
         {
             Name = name;
             Source = source;
@@ -145,20 +145,20 @@ namespace codequery.Expressions
         Average
     }
 
-    public abstract class CallbackExpression : FieldExpression
+    public abstract class SqlCallbackExpression : SqlExpression
     {
-          public CallbackExpression(FieldType type, params FieldExpression[] arguments): base(type)
+          public SqlCallbackExpression(FieldType type, params SqlExpression[] arguments): base(type)
         {
             this.Arguments = arguments;
         }
 
-        public FieldExpression[] Arguments { get; set; }
+        public SqlExpression[] Arguments { get; set; }
     }
 
     // count(a.id), sum(b.value)
-    public class AggregateExpression : CallbackExpression
+    public class AggregateExpression : SqlCallbackExpression
     {
-        public AggregateExpression(FieldType type, AggregateFunction function, params FieldExpression[] arguments): base(type, arguments)
+        public AggregateExpression(FieldType type, AggregateFunction function, params SqlExpression[] arguments): base(type, arguments)
         {
             this.Function = function;
         }
@@ -173,9 +173,9 @@ namespace codequery.Expressions
     }
 
     // Not the same a function
-    public class RowFunctionExpression : CallbackExpression
+    public class RowFunctionExpression : SqlCallbackExpression
     {
-        public RowFunctionExpression(FieldType type, FieldRowFunctionType function, params FieldExpression[] arguments): base(type, arguments)
+        public RowFunctionExpression(FieldType type, FieldRowFunctionType function, params SqlExpression[] arguments): base(type, arguments)
         {
             this.Function = function;
         }
@@ -197,9 +197,9 @@ namespace codequery.Expressions
         Contains
     }
     
-    public class FunctionExpression : CallbackExpression
+    public class SqlFunctionExpression : SqlCallbackExpression
     {
-        public FunctionExpression(FieldType type, FieldFunctionType function, params FieldExpression[] arguments): base(type, arguments)
+        public SqlFunctionExpression(FieldType type, FieldFunctionType function, params SqlExpression[] arguments): base(type, arguments)
         {
             this.Function = function;
 
@@ -223,13 +223,13 @@ namespace codequery.Expressions
         StringConcat
     }
 
-    public class MathExpression : FieldExpression
+    public class SqlMathExpression : SqlExpression
     {
-        public FieldExpression Left { get; private set; }
-        public FieldExpression Right { get; private set; }
+        public SqlExpression Left { get; private set; }
+        public SqlExpression Right { get; private set; }
         public FieldMathOperator Op { get; private set; }
 
-        public MathExpression(FieldType type, FieldExpression left, FieldMathOperator op, FieldExpression right) : base(type)
+        public SqlMathExpression(FieldType type, SqlExpression left, FieldMathOperator op, SqlExpression right) : base(type)
         {
             Left = left;
             Right = right;
@@ -241,18 +241,18 @@ namespace codequery.Expressions
     // Any expressino with an optional alias
     public class SelectField
     {
-        public SelectField(FieldExpression exp, string alias)
+        public SelectField(SqlExpression exp, string alias)
         {
             Expression = exp;
             Alias = alias;
         }
         public string Alias { get; set; }
-        public FieldExpression Expression { set; get; }
+        public SqlExpression Expression { set; get; }
     }
 
     public class OrderByClause
     {
-        public SourceFieldExpression By { get; set; }
+        public SqlColumnExpression By { get; set; }
         public bool Ascending { get; set; } = true;
     }
 
@@ -268,7 +268,7 @@ namespace codequery.Expressions
     public class JoinClause
     {
         public string JoinType { get; set; }
-        public FieldExpression OnClause { get; set; }
+        public SqlExpression OnClause { get; set; }
         public QuerySource Source { get; set; }
     }
 
@@ -277,8 +277,8 @@ namespace codequery.Expressions
         public SelectField[] Fields { get; set; }
         public QuerySource From { get; set; }
         public JoinClause[] Joins { get; set; }
-        public FieldExpression Where { get; set; }
-        public SourceFieldExpression[] GroupBy { get; set; }
+        public SqlExpression Where { get; set; }
+        public SqlColumnExpression[] GroupBy { get; set; }
         public OrderByClause[] OrderBy { get; set; }
     }
     

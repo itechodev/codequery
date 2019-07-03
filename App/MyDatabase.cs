@@ -61,11 +61,11 @@ namespace codequery.App
             var person = new TableSource("Person", "p");
             select.Fields = new SelectField[]
             {
-                new SelectField(new SourceFieldExpression(FieldType.String, "name", person), null),
-                new SelectField(new SourceFieldExpression(FieldType.Int, "age", person), null),
+                new SelectField(new SqlColumnExpression(FieldType.String, "name", person), null),
+                new SelectField(new SqlColumnExpression(FieldType.Int, "age", person), null),
             };
             select.From = person;
-            select.Where = new MathExpression(FieldType.Bool, new SourceFieldExpression(FieldType.Int, "age", person), FieldMathOperator.GreaterEqualThan, new ConstantExpression(FieldType.Int, 18)); 
+            select.Where = new SqlMathExpression(FieldType.Bool, new SqlColumnExpression(FieldType.Int, "age", person), FieldMathOperator.GreaterEqualThan, new SqlConstantExpression(FieldType.Int, 18)); 
 
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
             Console.WriteLine(driver.GenerateSelect(select));

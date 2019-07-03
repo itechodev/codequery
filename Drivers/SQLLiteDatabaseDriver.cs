@@ -7,23 +7,23 @@ namespace codequery.Drivers
 {
     public class SQLLiteDatabaseDriver : IDatabaseDriver
     {
-        private void GenerateField(SqlGenerator sql, FieldExpression field)
+        private void GenerateField(SqlGenerator sql, SqlExpression field)
         {
             switch (field)
             {
-                case ConstantExpression constant:
+                case SqlConstantExpression constant:
                     sql.Add(GenerateConstant(constant));
                     return;
-                case SourceFieldExpression named:
+                case SqlColumnExpression named:
                     sql.Add(GenerateNamed(named));
                     return;
                 case AggregateExpression aggregate:
                     GenerateAggregate(sql, aggregate);
                     return;
-                case FunctionExpression func:
+                case SqlFunctionExpression func:
                     GenerateFunc(sql, func);
                     return;
-                case MathExpression math:
+                case SqlMathExpression math:
                     GenerateMath(sql, math);
                     return;
                 case RowFunctionExpression rowFunc:
@@ -43,7 +43,7 @@ namespace codequery.Drivers
             throw new Exception($"Could not map row function '{rowFunc.Function.ToString()}'");        
         }
 
-        private void GenerateMath(SqlGenerator sql, MathExpression math)
+        private void GenerateMath(SqlGenerator sql, SqlMathExpression math)
         {
             GenerateField(sql, math.Left);
             sql.Add(" " + OperatorStr(math.Op) + " ");
@@ -80,7 +80,7 @@ namespace codequery.Drivers
             throw new NotImplementedException();
         }
 
-        private void GenerateFunc(SqlGenerator sql, FunctionExpression func)
+        private void GenerateFunc(SqlGenerator sql, SqlFunctionExpression func)
         {
             sql.Add(GenerateFunctionName(func.Function));
             sql.Add("(");
@@ -122,17 +122,17 @@ namespace codequery.Drivers
             throw new Exception($"Could not map aggregate function '{function.ToString()}'");
         }
 
-        private void GenerateFields(SqlGenerator sql, FieldExpression[] arguments)
+        private void GenerateFields(SqlGenerator sql, SqlExpression[] arguments)
         {
             GenerateCommaSep(sql, arguments, false, field => GenerateField(sql, field));
         }
 
-        private string GenerateNamed(SourceFieldExpression named)
+        private string GenerateNamed(SqlColumnExpression named)
         {
             return $"{named.Source.Alias}.{named.Name}";
         }
 
-        private string GenerateConstant(ConstantExpression constant)
+        private string GenerateConstant(SqlConstantExpression constant)
         {
             switch (constant.FieldType)
             {

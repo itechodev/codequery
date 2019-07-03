@@ -14,7 +14,7 @@ namespace codequery.Parser
             _query = query;
         }
 
-        public FieldExpression ParseField(Expression exp)
+        public SqlExpression ParseField(Expression exp)
         {
             if (exp is System.Linq.Expressions.ConstantExpression constant)
             {
@@ -23,7 +23,8 @@ namespace codequery.Parser
             // params... => body
             if (exp is LambdaExpression lambda)
             {
-                return ParseLambda(lambda.Parameters.ToArray(), ParseField(lambda.Body));
+                // return ParseLambda(lambda.Parameters.ToArray(), ParseField(lambda.Body));
+                return null;
             }
             // .Select(s => s)
             // QuoteExpression
@@ -53,7 +54,7 @@ namespace codequery.Parser
                 // Active
                 var memberName = member.Member.Name;
                 // Get Query Sourve by memberExpression
-                return new SourceFieldExpression(source.FieldType, memberName, null);
+                return new SqlColumnExpression(source.FieldType, memberName, null);
                 // // member.Member.Name == "name"
                 // if (member.Expression is ParameterExpression p)
                 // {
@@ -104,25 +105,25 @@ namespace codequery.Parser
             throw new Exception("Could not determine type");
         }
 
-        private FieldExpression ParseConstant(System.Linq.Expressions.ConstantExpression constant)
+        private SqlExpression ParseConstant(System.Linq.Expressions.ConstantExpression constant)
         {
             switch (constant.Value)
             {
                 case char ch:
-                    return new Expressions.ConstantExpression(FieldType.Char, ch);
+                    return new SqlConstantExpression(FieldType.Char, ch);
                 case string str:
-                    return new Expressions.ConstantExpression(FieldType.String, str);
+                    return new SqlConstantExpression(FieldType.String, str);
                 case int i:
-                    return new Expressions.ConstantExpression(FieldType.Int, i);
+                    return new SqlConstantExpression(FieldType.Int, i);
                 case double d:
-                    return new Expressions.ConstantExpression(FieldType.Double, d);
+                    return new SqlConstantExpression(FieldType.Double, d);
                 case bool b:
-                    return new Expressions.ConstantExpression(FieldType.Bool, b);
+                    return new SqlConstantExpression(FieldType.Bool, b);
             }
             throw new NotImplementedException();
         }
 
-        private FieldExpression ParseMethodCall(MethodCallExpression call)
+        private SqlExpression ParseMethodCall(MethodCallExpression call)
         {
             // A function on a object
             // Either from a Primitive or Aggregate 
@@ -186,16 +187,16 @@ namespace codequery.Parser
             throw new NotImplementedException();
         }
 
-        public MathExpression ParseBinaryExpression(BinaryExpression bin)
+        public SqlMathExpression ParseBinaryExpression(BinaryExpression bin)
         {
             var left = ParseField(bin.Left);
             var right = ParseField(bin.Right);
             if (left.FieldType == FieldType.String)
             {
-                return new MathExpression(left.FieldType, left, FieldMathOperator.StringConcat, right);
+                return new SqlMathExpression(left.FieldType, left, FieldMathOperator.StringConcat, right);
             } 
             
-            return new MathExpression(left.FieldType, left, ParseOperator(bin.NodeType), right);
+            return new SqlMathExpression(left.FieldType, left, ParseOperator(bin.NodeType), right);
         }
 
         private FieldMathOperator ParseOperator(ExpressionType nodeType)
