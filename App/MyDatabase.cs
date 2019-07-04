@@ -33,8 +33,23 @@ namespace codequery.App
         public string RFIDUID { get; set; }
     }
 
+    public class Farm
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int ClientId { get; set; }
+    }
+
+    public class Client
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
     public class MyDatabase : Database
     {
+        public DatabaseTable<Client> Clients { get; set; }
+        public DatabaseTable<Farm> Farms { get; set; }
         public DatabaseTable<Station> Stations { get; set; }
     }
 
@@ -48,6 +63,17 @@ namespace codequery.App
                 // .Where(s => s.UID.Contains("11"))
                 .Select(s => s.FarmId)
                 .FetchArray();
+            
+            db.Stations
+                .InnerJoin(() => 10)
+                .InnerJoin(() => "hoi daar")
+                .InnerJoin(() => 12.12)
+                .Select((a,b,c,d) => c;
+
+                // .InnerJoin(db.Farms, (s, f) => (station: s, farm: f))
+                // .InnerJoin(db.Clients, (p, c) => (station: p.station, farm: p.farm,  client: c))
+                // .Select(s => s.farm.Id);
+                
         }
 
         private void SqlBuilder()

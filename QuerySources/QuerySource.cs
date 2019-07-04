@@ -13,12 +13,75 @@ namespace codequery.QuerySources
         public TableDefinition Definition { get; set; }
     }
 
+    public class Join2<S1, S2>
+    {
+        public S1 First { get; set; }
+        public S2 Second { get; set; }
+    }
+
+    public class Join3<S1, S2, S3> : Join2<S1, S2>
+    {
+        public S3 Thrird { get; set; }
+    }
+
+    public class Join4<S1, S2, S3, S4>: Join3<S1, S2, S3>
+    {
+        public S4 Fourth { get; set; }
+    }
+
+
+    public class Join<L,R>
+    {
+        public L Left { get; set; }
+        public R Right { get; set; }
+    }
+
+    public class QQ3<A,B,C>
+    {
+        public Tuple<A,B,C> Get()
+        {
+            return null;
+        }
+    }
+
+    public class QQ2<A,B>
+    {
+        public QQ3<A,B,C> Query<C>()
+        {
+            return null;
+        }
+        public Tuple<A, B> Get()
+        {
+            return null;
+        }
+    }
+
+    public class QQ1<T>
+    {
+        public QQ2<T, G> Query<G>()
+        {
+            return null;
+        }
+
+        public T Get()
+        {
+            return default(T);
+        }
+    }
+
     public class QuerySource<T> : BaseQuerySource
     {
         private SelectQuery _query { get; set; }
 
         public QuerySource()
         {
+            var three = 
+                new QQ1<int>()
+                .Query<string>()
+                .Query<double>()
+                .Get();
+
+
             _query = new SelectQuery();
         }
 
@@ -36,6 +99,35 @@ namespace codequery.QuerySources
             var clause = parser.ToSqlExpression(predicate);
             
             return this;
+        }
+
+        public QuerySource<T, A> InnerJoin<A>(Func<A> select)
+        {
+            return null;
+        }
+    }
+
+    public class QuerySource<A, B>
+    {
+        public QuerySource<A, B, C> InnerJoin<C>(Func<C> select)
+        {
+            return null;
+        }
+    }
+
+    public class QuerySource<A, B, C>
+    {
+        public QuerySource<A, B, C, D> InnerJoin<D>(Func<D> select)
+        {
+            return null;
+        }
+    }
+
+     public class QuerySource<A, B, C, D>
+    {
+        public G Select<G>(Func<A, B, C, D, G> exp)
+        {
+            return default(G);
         }
     }
 
