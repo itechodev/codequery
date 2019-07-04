@@ -159,11 +159,26 @@ namespace codequery.QuerySources
             return null;
         }
 
-        // Selects, Where etc.
-        // public QuerySource<T> From<T>(PostSelectQuerySource<T> source)
-        // {
-        //     return new QuerySource<T>();
-        // }
+        public ResultQuerySource<T> Union(T fields)
+        {
+            return new ResultQuerySource<T>(null);
+        }
+
+        public ResultQuerySource<T> UnionAll(T fields)
+        {
+            return new ResultQuerySource<T>(null);
+        }
+
+
+        public ResultQuerySource<T> Union(ResultQuerySource<T> source)
+        {
+            return null;
+        }
+
+        public ResultQuerySource<T> UnionAll(ResultQuerySource<T> source)
+        {
+            return null;
+        }
 
     }
 

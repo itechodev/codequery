@@ -66,18 +66,15 @@ namespace codequery.App
                     bb = s.Active
                 });
 
-                
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
             Console.WriteLine(driver.GenerateSelect(exp.Query));
-            // db.Stations
-            //     .InnerJoin(() => 10)
-            //     .InnerJoin(() => "hoi daar")
-            //     .InnerJoin(() => 12.12)
-            //     .Select((a,b,c,d) => c);
 
-                // .InnerJoin(db.Farms, (s, f) => (station: s, farm: f))
-                // .InnerJoin(db.Clients, (p, c) => (station: p.station, farm: p.farm,  client: c))
-                // .Select(s => s.farm.Id);
+            db.From(
+                db.Select(new { Num = 1, Name = "Pizza"})
+                .Union(new { Num = 2, Name = "Burgers"})
+                .Union(new { Num = 3, Name = "Pancakes"})
+            ).Where(x => x.Num > 0);
+
                 
         }
 
