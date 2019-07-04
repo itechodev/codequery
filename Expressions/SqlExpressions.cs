@@ -56,12 +56,10 @@ namespace codequery.Expressions
     
         public SqlTableSource(BaseQuerySource source, string alias) : base(alias)
         {
-            TableName = source.Name;
-            Columns = source.Columns;
+            Definition = source.Definition;
         }
 
-        public string TableName { get; }
-        public TableColumn[] Columns { get; }
+        public TableDefinition Definition { get; }
     }
 
     public class SqlConstantSource : SqlQuerySource

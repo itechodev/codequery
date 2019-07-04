@@ -212,7 +212,7 @@ namespace codequery.Drivers
         {
             if (from is SqlTableSource table) 
             {
-                sql.Add($"{table.TableName} {table.Alias}");
+                sql.Add($"{table.Definition.Name} {table.Alias}");
                 return;
             }
             // Select 10 as value

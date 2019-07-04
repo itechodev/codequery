@@ -10,9 +10,7 @@ namespace codequery.QuerySources
     // Each query source needs to a definition of all the columns
     public class BaseQuerySource
     {
-        public TableColumn[] Columns { get; set; }
-        // Table name
-        public string Name { get; set; }
+        public TableDefinition Definition { get; set; }
     }
 
     public class QuerySource<T> : BaseQuerySource
@@ -60,16 +58,23 @@ namespace codequery.QuerySources
         // }
 
     }
-    
-    public class TableColumn
+
+    public class TableDefinition
     {
-        public TableColumn(string name, FieldType type)
+        public string Name { get; set; }
+        public ColumnDefinition[] Columns { get; set; }
+
+    }
+    
+    public class ColumnDefinition
+    {
+        public ColumnDefinition(string name, FieldType type)
         {
             this.Name = name;
             this.Type = type;
 
         }
-        public TableColumn(string name, FieldType type, string alias) 
+        public ColumnDefinition(string name, FieldType type, string alias) 
         {
             this.Name = name;
             this.Type = type;
@@ -107,17 +112,29 @@ namespace codequery.QuerySources
                 var instance = Activator.CreateInstance(prop.PropertyType);
                 prop.SetValue(this, instance);
 
-                var columns = prop.PropertyType.GenericTypeArguments[0]
-                    .GetProperties()
-                    .Select(p => new TableColumn(p.Name, ToSqlField(p.PropertyType)))
-                    .ToArray();
-
                 var baseQuery =  instance as BaseQuerySource;
-                baseQuery.Columns = columns;
+                baseQuery.Definition = GetTableDefinition(prop.PropertyType.GenericTypeArguments[0]);
             }            
         }
 
-        private FieldType ToSqlField(Type propertyType)
+        public static TableDefinition GetTableDefinition(Type type)
+        {
+            var ret = new TableDefinition();
+            // Cater for attributes
+            ret.Name = type.Name;
+            ret.Columns = type
+                .GetProperties()
+                .Select(p => new ColumnDefinition(p.Name, ToSqlField(p.PropertyType)))
+                .ToArray();
+            return ret;
+        }
+
+        public static  TableDefinition GetTableDefinition<T>()
+        {
+            return GetTableDefinition(typeof(T));
+        }
+
+        private static FieldType ToSqlField(Type propertyType)
         {
             var nullableType = Nullable.GetUnderlyingType(propertyType);
             if (nullableType != null)

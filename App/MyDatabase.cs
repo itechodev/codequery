@@ -55,8 +55,7 @@ namespace codequery.App
             var select = new SelectQuery();
             var person = new SqlTableSource(new QuerySource<Person>
             {
-                Name = "Person",
-                Columns = Database.GetColumnDefinitions<Person>()
+                Definition = Database.GetTableDefinition<Person>()
             }, "p");
             select.Fields = new SelectField[]
             {
