@@ -105,6 +105,27 @@ namespace codequery.QuerySources
         {
             return null;
         }
+
+
+        public QuerySource<T, A> LeftJoin<A>(Func<A> select) where A: class
+        {
+            return null;
+        }
+
+        public QuerySource<T, Nullable<A>> LeftJoin<A>(Func<Nullable<A>> select) where A: struct
+        {
+            return null;
+        }
+
+        public QuerySource<T, A> RightJoin<A>(Func<A> select) where A: class
+        {
+            return null;
+        }
+        
+        public QuerySource<T, Nullable<A>> RightJoin<A>(Func<Nullable<A>> select) where A: struct
+        {
+            return null;
+        }
     }
 
     public class QuerySource<A, B>

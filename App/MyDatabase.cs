@@ -64,11 +64,11 @@ namespace codequery.App
                 .Select(s => s.FarmId)
                 .FetchArray();
             
-            db.Stations
-                .InnerJoin(() => 10)
-                .InnerJoin(() => "hoi daar")
-                .InnerJoin(() => 12.12)
-                .Select((a,b,c,d) => c;
+            // db.Stations
+            //     .InnerJoin(() => 10)
+            //     .InnerJoin(() => "hoi daar")
+            //     .InnerJoin(() => 12.12)
+            //     .Select((a,b,c,d) => c);
 
                 // .InnerJoin(db.Farms, (s, f) => (station: s, farm: f))
                 // .InnerJoin(db.Clients, (p, c) => (station: p.station, farm: p.farm,  client: c))
