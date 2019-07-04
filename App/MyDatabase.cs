@@ -56,11 +56,7 @@ namespace codequery.App
             var person = new SqlTableSource(new QuerySource<Person>
             {
                 Name = "Person",
-                Columns = new TableColumn[] 
-                {  
-                    new TableColumn("Name", FieldType.String),
-                    new TableColumn("Age", FieldType.Int),
-                }
+                Columns = Database.GetColumnDefinitions<Person>()
             }, "p");
             select.Fields = new SelectField[]
             {
