@@ -116,13 +116,23 @@ namespace codequery.Parser
         private SqlExpression ParseMethodCall(MethodCallExpression call)
         {
             var body = ToSqlExpression(call.Object);
+            // Parse all arguments
+            var arguments = call.Arguments.Select(a => ToSqlExpression(a)).ToArray();
+
             // check for special cases for casting
             if (call.Method.Name == "ToString" && call.Method.ReturnType == typeof(string))
             {
                 return new SqlCastExpression(FieldType.String, body);
             }
-            // Parse all arguments
-            var arguments = call.Arguments.Select(a => ToSqlExpression(a)).ToArray();
+            if (call.Method.Name == "Contains")
+            {
+                if (arguments[0] is SqlConstantExpression pattern)
+                {
+                    return new SqlLikeExpression(body, pattern.Value.ToString());
+                }
+                throw new NotImplementedException();
+            }
+            
             var (returnType, function) = ToStringFunctionType(call.Type, call.Method.Name);
             return new SqlFunctionExpression(returnType, body, function, arguments);
         }

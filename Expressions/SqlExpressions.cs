@@ -118,6 +118,18 @@ namespace codequery.Expressions
         public object Value { get; set; }
     }
 
+    public class SqlLikeExpression : SqlExpression
+    {
+        public SqlLikeExpression(SqlExpression body, string pattern) : base(FieldType.Bool)
+        {
+            Body = body;
+            Pattern = pattern;
+        }
+
+        public SqlExpression Body { get; }
+        public string Pattern { get; }
+    }
+
     // Not a function or aggregate
     // CAST(9.5 AS INT)
 
@@ -206,8 +218,7 @@ namespace codequery.Expressions
         RightTrim,
         Trim,
         Length,
-        Replace,
-        Contains
+        Replace
     }
 
     public class SqlFunctionExpression : SqlCallbackExpression

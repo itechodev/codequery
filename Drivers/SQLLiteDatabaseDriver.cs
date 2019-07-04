@@ -32,8 +32,17 @@ namespace codequery.Drivers
                 case SqlCastExpression cast:
                     GenerateCast(sql, cast);
                     return;
+                case SqlLikeExpression like:
+                    GenerateLike(sql, like);
+                    return;
             }
             throw new Exception($"Could not generate SQL for field {field.GetType()}");
+        }
+
+        private void GenerateLike(SqlGenerator sql, SqlLikeExpression like)
+        {
+            GenerateField(sql, like.Body);
+            sql.Add($" LIKE '{like.Pattern}'");
         }
 
         private void GenerateCast(SqlGenerator sql, SqlCastExpression cast)

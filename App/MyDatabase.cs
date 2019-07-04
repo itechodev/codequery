@@ -60,7 +60,7 @@ namespace codequery.App
             var db = new MyDatabase();
             var exp = db.Stations
                 .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
-                // .Where(s => s.UID.Contains("11"))
+                .Where(s => s.UID.Contains("11"))
                 .Select(s => new {
                     aa = s.FarmId,
                     bb = s.Active
