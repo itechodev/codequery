@@ -7,16 +7,21 @@ using codequery.Parser;
 
 namespace codequery.QuerySources
 {
-    public class QuerySource<T>
+    // Each query source needs to a definition of all the columns
+    public class BaseQuerySource
+    {
+        public TableColumn[] Columns { get; set; }
+        // Table name
+        public string Name { get; set; }
+    }
+
+    public class QuerySource<T> : BaseQuerySource
     {
         private SelectQuery _query { get; set; }
-
-        private ExpressionParser _parser { get; set; }
 
         public QuerySource()
         {
             _query = new SelectQuery();
-            _parser = new ExpressionParser(_query);
         }
 
         public PostSelectQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
@@ -29,7 +34,8 @@ namespace codequery.QuerySources
             // x => x.Field. > 10...
             // .Where(s => s.Active)
             // .Where(s => s.UID.Contains("11"))
-            var clause = _parser.ToSqlExpression(predicate);
+            var parser = new ExpressionParser(_query);
+            var clause = parser.ToSqlExpression(predicate);
             
             return this;
         }
@@ -87,8 +93,6 @@ namespace codequery.QuerySources
             return new QuerySource<T>();
         }
 
-        private static Dictionary<Type, TableColumn[]> TableColumns = new Dictionary<Type, TableColumn[]>();
-
         // Tables to be declared in derived table
         public Database()
         {
@@ -108,7 +112,8 @@ namespace codequery.QuerySources
                     .Select(p => new TableColumn(p.Name, ToSqlField(p.PropertyType)))
                     .ToArray();
 
-                TableColumns.Add(prop.PropertyType, columns);
+                var baseQuery =  instance as BaseQuerySource;
+                baseQuery.Columns = columns;
             }            
         }
 

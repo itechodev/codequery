@@ -53,7 +53,15 @@ namespace codequery.App
         private void SqlBuilder()
         {
             var select = new SelectQuery();
-            var person = new SqlTableSource("Person", "p");
+            var person = new SqlTableSource(new QuerySource<Person>
+            {
+                Name = "Person",
+                Columns = new TableColumn[] 
+                {  
+                    new TableColumn("Name", FieldType.String),
+                    new TableColumn("Age", FieldType.Int),
+                }
+            }, "p");
             select.Fields = new SelectField[]
             {
                 new SelectField(new SqlColumnExpression(FieldType.String, "name", person), null),
@@ -65,42 +73,11 @@ namespace codequery.App
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
             Console.WriteLine(driver.GenerateSelect(select));
         }
+    }
 
-        private void Semantics()
-        {
-        //     var db = new MyDatabase();
-
-        //     // From table source
-        //     db.Stations
-        //         .Where(s => s.FarmId == 10)
-        //         .Select(s => s.Id)
-        //         .FetchSingle();
-            
-        //     db.Stations
-        //         .Where(s => s.Active)
-        //         .Select(s => new {
-        //             Farm = s.FarmId,
-        //             Age = s.FarmId.Value
-        //         })
-        //         .FetchArray();
-                
-        //     // From Constant source
-        //     db.Select(10)
-        //         .FetchSingle();
-
-        //     db.Select(new {
-        //         a = 10,
-        //         b = 20
-        //     })
-        //     .FetchSingle();
-
-        //     // From SubQuery
-        //     db.From(
-        //         db.Stations
-        //             .Select(s => new {
-        //                 random = "field"
-        //             })
-        //     ).Select(a => a.random);
-        }
+    internal class Person
+    {
+        public string Name { get; set; }
+        public int Age { get; set; }
     }
 }

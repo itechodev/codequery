@@ -10,6 +10,7 @@ namespace codequery.Parser
         public SqlQuerySource Source { get; set; }
         public Type Type { get; set; }
     }
+    
     public class ParserScope
     {
 
@@ -19,7 +20,7 @@ namespace codequery.Parser
         }
 
         public ParameterExpression[] Parameters { get; set; }
-        public QuerySourceType[] QuerySourceTypes  { get; set; }
+        public QuerySourceType[] QuerySourceTypes { get; set; } 
 
         public ParameterExpression FindParamByType(Type type)
         {
@@ -28,7 +29,7 @@ namespace codequery.Parser
 
         public SqlQuerySource GetSourceByType(Type type)
         {
-            var qs = QuerySourceTypes.FirstOrDefault(q => q.Type == type);
+            var qs = QuerySourceTypes?.FirstOrDefault(q => q.Type == type);
             return qs?.Source;
         }
     }

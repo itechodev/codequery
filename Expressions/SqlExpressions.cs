@@ -26,6 +26,7 @@
 // It's no safegauard for generating invalid SQL
 using System;
 using System.Linq;
+using codequery.QuerySources;
 
 namespace codequery.Expressions
 {
@@ -52,12 +53,15 @@ namespace codequery.Expressions
 
     public class SqlTableSource : SqlQuerySource
     {
-        public string Table { get; set; }
-
-        public SqlTableSource(string table, string alias) : base(alias)
+    
+        public SqlTableSource(BaseQuerySource source, string alias) : base(alias)
         {
-            Table = table;
+            TableName = source.Name;
+            Columns = source.Columns;
         }
+
+        public string TableName { get; }
+        public TableColumn[] Columns { get; }
     }
 
     public class SqlConstantSource : SqlQuerySource
