@@ -178,7 +178,7 @@ namespace codequery.Drivers
             SqlGenerator sql = new SqlGenerator();
             sql.Add("SELECT");
             sql.NewLineIndent();
-            GenereateSelectFields(sql, query.Fields);
+            // GenereateSelectFields(sql, query.Fields);
             sql.NewLineUnIndent();
             sql.Add("FROM");
             sql.NewLineIndent();

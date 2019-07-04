@@ -7,43 +7,26 @@ namespace codequery.Parser
 {
     public class QuerySourceType
     {
+        // s => 
+        public QuerySourceType(SqlQuerySource source, Type type)
+        {
+            this.Source = source;
+            this.Type = type;
+        }
         public SqlQuerySource Source { get; set; }
         public Type Type { get; set; }
-    }
-    
-    public class ParserScope
-    {
-
-        public ParserScope(ParameterExpression[] parameters)
-        {
-            Parameters = parameters;
-        }
-
-        public ParameterExpression[] Parameters { get; set; }
-        public QuerySourceType[] QuerySourceTypes { get; set; } 
-
-        public ParameterExpression FindParamByType(Type type)
-        {
-            return Parameters.FirstOrDefault(p => p.Type == type);
-        }
-
-        public SqlQuerySource GetSourceByType(Type type)
-        {
-            var qs = QuerySourceTypes?.FirstOrDefault(q => q.Type == type);
-            return qs?.Source;
-        }
     }
 
     public class ExpressionParser
     {
-        private SelectQuery _query;
+        private QuerySourceType[] _sources;
 
-        public ExpressionParser(SelectQuery query)
+        public ExpressionParser(QuerySourceType[] sources)
         {
-            _query = query;
+            _sources = sources;
         }
 
-        public SqlExpression ToSqlExpression(Expression exp, ParserScope scope = null)
+        public SqlExpression ToSqlExpression(Expression exp)
         {
             if (exp is System.Linq.Expressions.ConstantExpression constant)
             {
@@ -53,8 +36,8 @@ namespace codequery.Parser
             if (exp is LambdaExpression lambda)
             {
                 // save original parameters
-                var newScope = new ParserScope(lambda.Parameters.ToArray());
-                return ToSqlExpression(lambda.Body, newScope);
+                // var newScope = new ParserScope(lambda.Parameters.ToArray());
+                return ToSqlExpression(lambda.Body);
             }
             // .Select(s => s)
             // QuoteExpression
@@ -66,11 +49,11 @@ namespace codequery.Parser
             // new { ... }
             if (exp is NewExpression newx)
             {
-            //     newx.Arguments
-            //     var list = newx.Arguments.Select((a,i) => ParseField(a, newx.Members[i].Name)).ToArray();
-            //     return new FieldList(list);
+                //     newx.Arguments
+                //     var list = newx.Arguments.Select((a,i) => ParseField(a, newx.Members[i].Name)).ToArray();
+                //     return new FieldList(list);
             }
-            
+
             // x => [x.Active]
             if (exp is MemberExpression member)
             {
@@ -78,29 +61,29 @@ namespace codequery.Parser
                 {
                     // s => [s].Active
                     var memberName = member.Member.Name;
-                    var source = scope.GetSourceByType(param.Type);
+                    var source = _sources.First(s => s.Type == param.Type).Source;
                     // Get Query Sourve by memberExpression
                     return new SqlColumnExpression(source.GetColumnType(memberName), memberName, source);
                     // param.Name ==
                     // param.Type
                 }
 
-                throw new NotImplementedException();   
+                throw new NotImplementedException();
             }
 
             // u.Name
             if (exp is MethodCallExpression call)
             {
-                return ParseMethodCall(call, scope);
+                return ParseMethodCall(call);
             }
             if (exp is BinaryExpression bin)
             {
-                return ParseBinaryExpression(bin, scope);
+                return ParseBinaryExpression(bin);
             }
             throw new NotImplementedException();
         }
-       
-        
+
+
         private SqlQuerySource GetSourceFromType(Type type)
         {
             // if (type == _query.From.Type)
@@ -139,16 +122,16 @@ namespace codequery.Parser
             throw new NotImplementedException();
         }
 
-        private SqlExpression ParseMethodCall(MethodCallExpression call, ParserScope scope)
+        private SqlExpression ParseMethodCall(MethodCallExpression call)
         {
-            var body = ToSqlExpression(call.Object, scope);
+            var body = ToSqlExpression(call.Object);
             // check for special cases for casting
-            if (call.Method.Name == "ToString" && call.Method.ReflectedType == typeof(string))
+            if (call.Method.Name == "ToString" && call.Method.ReturnType == typeof(string))
             {
                 return new SqlCastExpression(FieldType.String, body);
             }
             // Parse all arguments
-            var arguments = call.Arguments.Select(a => ToSqlExpression(a, scope)).ToArray();
+            var arguments = call.Arguments.Select(a => ToSqlExpression(a)).ToArray();
             var (returnType, function) = ToStringFunctionType(call.Type, call.Method.Name);
             return new SqlFunctionExpression(returnType, body, function, arguments);
         }
@@ -167,11 +150,11 @@ namespace codequery.Parser
             throw new NotImplementedException();
         }
 
-        public SqlMathExpression ParseBinaryExpression(BinaryExpression bin, ParserScope scope)
+        public SqlMathExpression ParseBinaryExpression(BinaryExpression bin)
         {
-            var left = ToSqlExpression(bin.Left, scope);
-            var right = ToSqlExpression(bin.Right, scope);
-            
+            var left = ToSqlExpression(bin.Left);
+            var right = ToSqlExpression(bin.Right);
+
             return new SqlMathExpression(left.FieldType, left, ParseOperator(left.FieldType, right.FieldType, bin.NodeType), right);
         }
 

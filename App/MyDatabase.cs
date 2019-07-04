@@ -58,12 +58,14 @@ namespace codequery.App
         public void Run()
         {
             var db = new MyDatabase();
-            db.Stations
+            var exp = db.Stations
                 .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
                 // .Where(s => s.UID.Contains("11"))
-                .Select(s => s.FarmId)
-                .FetchArray();
-            
+                .Select(s => s.FarmId);
+
+                
+            IDatabaseDriver driver = new SQLLiteDatabaseDriver();
+            Console.WriteLine(driver.GenerateSelect(exp._query));
             // db.Stations
             //     .InnerJoin(() => 10)
             //     .InnerJoin(() => "hoi daar")
@@ -79,10 +81,7 @@ namespace codequery.App
         private void SqlBuilder()
         {
             var select = new SelectQuery();
-            var person = new SqlTableSource(new QuerySource<Person>
-            {
-                Definition = Database.GetTableDefinition<Person>()
-            }, "p");
+            var person = new SqlTableSource(Database.GetTableDefinition<Person>(), "p");
             select.Fields = new SelectField[]
             {
                 new SelectField(new SqlColumnExpression(FieldType.String, "name", person), null),

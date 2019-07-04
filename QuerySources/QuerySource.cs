@@ -10,6 +10,12 @@ namespace codequery.QuerySources
     // Each query source needs to a definition of all the columns
     public class BaseQuerySource
     {
+        public BaseQuerySource(SelectQuery select = null)
+        {
+            _query = select ?? new SelectQuery();
+        }
+
+        public SelectQuery _query { get; set; }
         public TableDefinition Definition { get; set; }
     }
 
@@ -36,58 +42,17 @@ namespace codequery.QuerySources
         public R Right { get; set; }
     }
 
-    public class QQ3<A,B,C>
-    {
-        public Tuple<A,B,C> Get()
-        {
-            return null;
-        }
-    }
-
-    public class QQ2<A,B>
-    {
-        public QQ3<A,B,C> Query<C>()
-        {
-            return null;
-        }
-        public Tuple<A, B> Get()
-        {
-            return null;
-        }
-    }
-
-    public class QQ1<T>
-    {
-        public QQ2<T, G> Query<G>()
-        {
-            return null;
-        }
-
-        public T Get()
-        {
-            return default(T);
-        }
-    }
-
     public class QuerySource<T> : BaseQuerySource
     {
-        private SelectQuery _query { get; set; }
-
-        public QuerySource()
+        public QuerySource(SelectQuery select = null): base(select)
         {
-            var three = 
-                new QQ1<int>()
-                .Query<string>()
-                .Query<double>()
-                .Get();
-
-
-            _query = new SelectQuery();
+            
         }
 
         public PostSelectQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
         {
-            return new PostSelectQuerySource<N>();
+
+            return new PostSelectQuerySource<N>(_query);
         }
 
         public QuerySource<T> Where(Expression<Func<T, bool>> predicate)
@@ -95,10 +60,21 @@ namespace codequery.QuerySources
             // x => x.Field. > 10...
             // .Where(s => s.Active)
             // .Where(s => s.UID.Contains("11"))
-            var parser = new ExpressionParser(_query);
+            var parser = new ExpressionParser(new QuerySourceType[] 
+            {
+                new QuerySourceType(new SqlTableSource(Definition, "a"), typeof(T))
+            });
             var clause = parser.ToSqlExpression(predicate);
-            
-            return this;
+            if (_query.Where == null)
+            {
+                _query.Where = clause;
+            }
+            else
+            {
+                // Combine previous with AND
+                _query.Where = new SqlMathExpression(clause.FieldType, _query.Where, FieldMathOperator.And, clause);
+            }
+            return new QuerySource<T>(_query);
         }
 
         public QuerySource<T, A> InnerJoin<A>(Func<A> select)
@@ -152,8 +128,12 @@ namespace codequery.QuerySources
         }
     }
 
-    public class PostSelectQuerySource<T>
+    public class PostSelectQuerySource<T>: BaseQuerySource
     {
+        public PostSelectQuerySource(SelectQuery select) : base(select)
+        {
+        }
+
         public T FetchSingle()
         {
             return default(T);
@@ -202,7 +182,7 @@ namespace codequery.QuerySources
         // Constant source queries
         public PostSelectQuerySource<T> Select<T>(T fields)
         {
-            return new PostSelectQuerySource<T>();
+            return new PostSelectQuerySource<T>(null);
         }
 
         // SubQuery
@@ -227,6 +207,10 @@ namespace codequery.QuerySources
 
                 var baseQuery =  instance as BaseQuerySource;
                 baseQuery.Definition = GetTableDefinition(prop.PropertyType.GenericTypeArguments[0]);
+                baseQuery._query = new SelectQuery
+                {
+                    From = new SqlTableSource(baseQuery.Definition, "a")
+                };
             }            
         }
 

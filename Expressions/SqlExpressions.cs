@@ -54,9 +54,9 @@ namespace codequery.Expressions
     public class SqlTableSource : SqlQuerySource
     {
     
-        public SqlTableSource(BaseQuerySource source, string alias) : base(alias)
+        public SqlTableSource(TableDefinition def, string alias) : base(alias)
         {
-            Definition = source.Definition;
+            Definition = def;
         }
 
         public TableDefinition Definition { get; }
