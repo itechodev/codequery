@@ -48,7 +48,7 @@ namespace codequery.QuerySources
             
         }
 
-        public PostSelectQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
+        public ResultQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
@@ -66,7 +66,7 @@ namespace codequery.QuerySources
                 Query.Fields = new SelectField[1] { new SelectField(parser.ToSqlExpression(fields), null)};
             }
 
-            return new PostSelectQuerySource<N>(Query);
+            return new ResultQuerySource<N>(Query);
         }
 
         public QuerySource<T> Where(Expression<Func<T, bool>> predicate)
@@ -143,9 +143,9 @@ namespace codequery.QuerySources
         }
     }
 
-    public class PostSelectQuerySource<T>: BaseQuerySource
+    public class ResultQuerySource<T>: BaseQuerySource
     {
-        public PostSelectQuerySource(SelectQuery select) : base(select)
+        public ResultQuerySource(SelectQuery select) : base(select)
         {
         }
 
@@ -195,13 +195,13 @@ namespace codequery.QuerySources
     public class Database
     {
         // Constant source queries
-        public PostSelectQuerySource<T> Select<T>(T fields)
+        public ResultQuerySource<T> Select<T>(T fields)
         {
-            return new PostSelectQuerySource<T>(null);
+            return new ResultQuerySource<T>(null);
         }
 
         // SubQuery
-        public QuerySource<T> From<T>(PostSelectQuerySource<T> source)
+        public QuerySource<T> From<T>(ResultQuerySource<T> source)
         {
             return new QuerySource<T>();
         }
