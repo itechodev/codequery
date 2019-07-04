@@ -124,11 +124,27 @@ namespace codequery.Parser
             {
                 return new SqlCastExpression(FieldType.String, body);
             }
+            if (call.Method.Name == "StartsWith")
+            {
+                if (arguments[0] is SqlConstantExpression pattern)
+                {
+                    return new SqlLikeExpression(body, pattern.Value.ToString(), SqlLikePattern.Start);
+                }
+                throw new NotImplementedException();
+            }
+            if (call.Method.Name == "EndsWith")
+            {
+                if (arguments[0] is SqlConstantExpression pattern)
+                {
+                    return new SqlLikeExpression(body, pattern.Value.ToString(), SqlLikePattern.End);
+                }
+                throw new NotImplementedException();
+            }
             if (call.Method.Name == "Contains")
             {
                 if (arguments[0] is SqlConstantExpression pattern)
                 {
-                    return new SqlLikeExpression(body, pattern.Value.ToString());
+                    return new SqlLikeExpression(body, pattern.Value.ToString(), SqlLikePattern.Both);
                 }
                 throw new NotImplementedException();
             }

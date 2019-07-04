@@ -118,16 +118,25 @@ namespace codequery.Expressions
         public object Value { get; set; }
     }
 
+    public enum SqlLikePattern
+    {
+        Start,
+        End,
+        Both
+    }
+
     public class SqlLikeExpression : SqlExpression
     {
-        public SqlLikeExpression(SqlExpression body, string pattern) : base(FieldType.Bool)
+        public SqlLikeExpression(SqlExpression body, string pattern, SqlLikePattern patternType) : base(FieldType.Bool)
         {
             Body = body;
             Pattern = pattern;
+            PatternType = patternType;
         }
 
         public SqlExpression Body { get; }
         public string Pattern { get; }
+        public SqlLikePattern PatternType { get; }
     }
 
     // Not a function or aggregate

@@ -42,7 +42,17 @@ namespace codequery.Drivers
         private void GenerateLike(SqlGenerator sql, SqlLikeExpression like)
         {
             GenerateField(sql, like.Body);
-            sql.Add($" LIKE '{like.Pattern}'");
+            sql.Add(" LIKE '");
+            if (like.PatternType != SqlLikePattern.End)
+            {
+                sql.Add("%");
+            }
+            sql.Add(like.Pattern);
+            if (like.PatternType != SqlLikePattern.Start)
+            {
+                sql.Add("%");
+            }
+            sql.Add("'");
         }
 
         private void GenerateCast(SqlGenerator sql, SqlCastExpression cast)
