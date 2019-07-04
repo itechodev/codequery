@@ -240,7 +240,7 @@ namespace codequery.Drivers
         {
             if (from is SqlTableSource table) 
             {
-                sql.Add($"{table.Definition.Name} {table.Alias}");
+                sql.Add($"{table.Name} {table.Alias}");
                 return;
             }
             // Select 10 as value
@@ -249,7 +249,7 @@ namespace codequery.Drivers
                 sql.Add("(", true);
                 sql.Indent();
                 sql.Add("SELECT ");
-                GenereateSelectFields(sql, constant.Fields);
+                // GenereateSelectFields(sql, from.;
                 sql.UnIndent();
                 sql.Add(") {constant.Alias}");
                 return;

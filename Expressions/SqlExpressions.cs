@@ -39,12 +39,14 @@ namespace codequery.Expressions
 
     public abstract class SqlQuerySource
     {
-        public SqlQuerySource(string alias)
+        public SqlQuerySource(ColumnDefinition[] columns, string alias)
         {
             Alias = alias;
+            Columns = columns;
         }
         public string Alias { get; set; }
-        
+        public ColumnDefinition[] Columns { get; }
+
         public FieldType GetColumnType(string name)
         {
             return FieldType.String;
@@ -54,27 +56,24 @@ namespace codequery.Expressions
     public class SqlTableSource : SqlQuerySource
     {
     
-        public SqlTableSource(TableDefinition def, string alias) : base(alias)
+        public SqlTableSource(TableDefinition def, string alias) : base(def.Columns, alias)
         {
-            Definition = def;
+            Name = def.Name;
         }
 
-        public TableDefinition Definition { get; }
+        public string Name { get; }
     }
 
     public class SqlConstantSource : SqlQuerySource
     {
-        public SqlConstantSource(string alias, params SelectField[] fields) : base(alias)
+        public SqlConstantSource(ColumnDefinition[] columns, string alias) : base(columns, alias)
         {
-            Fields = fields;
         }
-
-        public SelectField[] Fields { get; private set; }
     }
 
     public class SqlSubQuerySource : SqlQuerySource
     {
-        public SqlSubQuerySource(SqlQuerySource source, string alias) : base(alias)
+        public SqlSubQuerySource(SqlQuerySource source, string alias) : base(source.Columns, alias)
         {
             Source = source;
         }

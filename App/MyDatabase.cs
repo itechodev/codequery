@@ -65,7 +65,7 @@ namespace codequery.App
 
                 
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
-            Console.WriteLine(driver.GenerateSelect(exp._query));
+            Console.WriteLine(driver.GenerateSelect(exp.Query));
             // db.Stations
             //     .InnerJoin(() => 10)
             //     .InnerJoin(() => "hoi daar")

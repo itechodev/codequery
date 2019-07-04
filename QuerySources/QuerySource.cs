@@ -10,13 +10,12 @@ namespace codequery.QuerySources
     // Each query source needs to a definition of all the columns
     public class BaseQuerySource
     {
-        public BaseQuerySource(SelectQuery select = null)
+        public BaseQuerySource(SelectQuery select)
         {
-            _query = select ?? new SelectQuery();
+            Query = select ?? new SelectQuery();
         }
 
-        public SelectQuery _query { get; set; }
-        public TableDefinition Definition { get; set; }
+        public SelectQuery Query { get; set; }
     }
 
     public class Join2<S1, S2>
@@ -52,7 +51,7 @@ namespace codequery.QuerySources
         public PostSelectQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
         {
 
-            return new PostSelectQuerySource<N>(_query);
+            return new PostSelectQuerySource<N>(Query);
         }
 
         public QuerySource<T> Where(Expression<Func<T, bool>> predicate)
@@ -60,21 +59,22 @@ namespace codequery.QuerySources
             // x => x.Field. > 10...
             // .Where(s => s.Active)
             // .Where(s => s.UID.Contains("11"))
+            
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(new SqlTableSource(Definition, "a"), typeof(T))
+                new QuerySourceType(Query.From, typeof(T))
             });
             var clause = parser.ToSqlExpression(predicate);
-            if (_query.Where == null)
+            if (Query.Where == null)
             {
-                _query.Where = clause;
+                Query.Where = clause;
             }
             else
             {
                 // Combine previous with AND
-                _query.Where = new SqlMathExpression(clause.FieldType, _query.Where, FieldMathOperator.And, clause);
+                Query.Where = new SqlMathExpression(clause.FieldType, Query.Where, FieldMathOperator.And, clause);
             }
-            return new QuerySource<T>(_query);
+            return new QuerySource<T>(Query);
         }
 
         public QuerySource<T, A> InnerJoin<A>(Func<A> select)
@@ -206,10 +206,10 @@ namespace codequery.QuerySources
                 prop.SetValue(this, instance);
 
                 var baseQuery =  instance as BaseQuerySource;
-                baseQuery.Definition = GetTableDefinition(prop.PropertyType.GenericTypeArguments[0]);
-                baseQuery._query = new SelectQuery
+                var def = GetTableDefinition(prop.PropertyType.GenericTypeArguments[0]);
+                baseQuery.Query = new SelectQuery
                 {
-                    From = new SqlTableSource(baseQuery.Definition, "a")
+                    From = new SqlTableSource(def, "a")
                 };
             }            
         }
