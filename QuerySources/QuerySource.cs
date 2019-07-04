@@ -50,6 +50,21 @@ namespace codequery.QuerySources
 
         public PostSelectQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
         {
+            var parser = new ExpressionParser(new QuerySourceType[] 
+            {
+                new QuerySourceType(Query.From, typeof(T))
+            });
+
+            if (fields.Body is NewExpression newx)
+            {
+                Query.Fields = newx.Arguments.Select((a,i) => 
+                    new SelectField(parser.ToSqlExpression(a), newx.Members[i].Name)
+                ).ToArray();
+            } 
+            else
+            {
+                Query.Fields = new SelectField[1] { new SelectField(parser.ToSqlExpression(fields), null)};
+            }
 
             return new PostSelectQuerySource<N>(Query);
         }

@@ -46,15 +46,6 @@ namespace codequery.Parser
                 // un.Method?
                 return ToSqlExpression(un.Operand);
             }
-            // new { ... }
-            if (exp is NewExpression newx)
-            {
-                //     newx.Arguments
-                //     var list = newx.Arguments.Select((a,i) => ParseField(a, newx.Members[i].Name)).ToArray();
-                //     return new FieldList(list);
-            }
-
-            // x => [x.Active]
             if (exp is MemberExpression member)
             {
                 if (member.Expression is ParameterExpression param)

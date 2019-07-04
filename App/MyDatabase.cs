@@ -61,7 +61,10 @@ namespace codequery.App
             var exp = db.Stations
                 .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
                 // .Where(s => s.UID.Contains("11"))
-                .Select(s => s.FarmId);
+                .Select(s => new {
+                    aa = s.FarmId,
+                    bb = s.Active
+                });
 
                 
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();

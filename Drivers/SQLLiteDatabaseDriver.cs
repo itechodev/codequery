@@ -196,7 +196,7 @@ namespace codequery.Drivers
                 GenerateField(sql, field.Expression);
                 if (!String.IsNullOrEmpty(field.Alias)) 
                 {
-                    sql.Add(" AS {field.Alias}");
+                    sql.Add($" AS {field.Alias}");
                 }
             });
         }
@@ -206,7 +206,7 @@ namespace codequery.Drivers
             SqlGenerator sql = new SqlGenerator();
             sql.Add("SELECT");
             sql.NewLineIndent();
-            // GenereateSelectFields(sql, query.Fields);
+            GenereateSelectFields(sql, query.Fields);
             sql.NewLineUnIndent();
             sql.Add("FROM");
             sql.NewLineIndent();
