@@ -29,8 +29,30 @@ namespace codequery.Drivers
                 case RowFunctionExpression rowFunc:
                     GenerateRowFunc(sql, rowFunc);
                     return;
+                case SqlCastExpression cast:
+                    GenerateCast(sql, cast);
+                    return;
             }
             throw new Exception($"Could not generate SQL for field {field.GetType()}");
+        }
+
+        private void GenerateCast(SqlGenerator sql, SqlCastExpression cast)
+        {
+            sql.Add("CAST(");
+            GenerateField(sql, cast.Field);
+            sql.Add($" AS {FieldToStr(cast.FieldType)})");
+        }
+
+        private object FieldToStr(FieldType fieldType)
+        {
+            switch (fieldType)
+            {
+                case FieldType.Int:
+                    return "INT";
+                case FieldType.String:
+                    return "STRING";
+            }
+            throw new NotImplementedException();
         }
 
         private string GenerateRowFunc(SqlGenerator sql, RowFunctionExpression rowFunc)
@@ -82,9 +104,15 @@ namespace codequery.Drivers
 
         private void GenerateFunc(SqlGenerator sql, SqlFunctionExpression func)
         {
+            // lower(....) 
             sql.Add(GenerateFunctionName(func.Function));
             sql.Add("(");
-            GenerateFields(sql, func.Arguments);
+            GenerateField(sql, func.Body);
+            if (func.Arguments?.Length > 0)
+            {
+                sql.Add(", ");
+                GenerateFields(sql, func.Arguments);
+            }
             sql.Add(")");
         }
 
