@@ -149,6 +149,18 @@ namespace codequery.QuerySources
         {
         }
 
+        public ResultQuerySource<T> Union(T fields)
+        {
+            // Keetp the same source and column definitions
+            return new ResultQuerySource<T>(Query);
+        }
+
+        public ResultQuerySource<T> UnionAll(T fields)
+        {
+            return new ResultQuerySource<T>(Query);
+        }
+
+
         public T FetchSingle()
         {
             return default(T);
@@ -159,26 +171,7 @@ namespace codequery.QuerySources
             return null;
         }
 
-        public ResultQuerySource<T> Union(T fields)
-        {
-            return new ResultQuerySource<T>(null);
-        }
-
-        public ResultQuerySource<T> UnionAll(T fields)
-        {
-            return new ResultQuerySource<T>(null);
-        }
-
-
-        public ResultQuerySource<T> Union(ResultQuerySource<T> source)
-        {
-            return null;
-        }
-
-        public ResultQuerySource<T> UnionAll(ResultQuerySource<T> source)
-        {
-            return null;
-        }
+        
 
     }
 
@@ -212,7 +205,12 @@ namespace codequery.QuerySources
         // Constant source queries
         public ResultQuerySource<T> Select<T>(T fields)
         {
-            return new ResultQuerySource<T>(null);
+            var def = GetTableDefinition(typeof(T));
+            var select = new SelectQuery
+            {
+                From = new SqlConstantSource(def.Columns, "b") 
+            };
+            return new ResultQuerySource<T>(select);
         }
 
         // SubQuery

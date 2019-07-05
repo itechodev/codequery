@@ -57,23 +57,26 @@ namespace codequery.App
     {
         public void Run()
         {
-            var db = new MyDatabase();
-            var exp = db.Stations
-                .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
-                .Where(s => s.UID.Contains("11"))
-                .Select(s => new {
-                    aa = s.FarmId,
-                    bb = s.Active
-                });
-
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
-            Console.WriteLine(driver.GenerateSelect(exp.Query));
+            
+            var db = new MyDatabase();
+            // var exp = db.Stations
+            //     .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
+            //     .Where(s => s.UID.Contains("11"))
+            //     .Select(s => new {
+            //         aa = s.FarmId,
+            //         bb = s.Active
+            //     });
 
-            db.From(
+            // Console.WriteLine(driver.GenerateSelect(exp.Query));
+
+            var constExp = db.From(
                 db.Select(new { Num = 1, Name = "Pizza"})
                 .Union(new { Num = 2, Name = "Burgers"})
                 .Union(new { Num = 3, Name = "Pancakes"})
             ).Where(x => x.Num > 0);
+
+            Console.WriteLine(driver.GenerateSelect(constExp.Query));
 
                 
         }
