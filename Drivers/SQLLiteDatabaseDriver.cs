@@ -171,7 +171,7 @@ namespace codequery.Drivers
 
         private void GenerateFields(SqlGenerator sql, SqlExpression[] arguments)
         {
-            GenerateCommaSep(sql, arguments, false, field => GenerateField(sql, field));
+            GenerateCommaSep(sql, arguments, false, (field, _) => GenerateField(sql, field));
         }
 
         private string GenerateNamed(SqlColumnExpression named)
@@ -193,11 +193,12 @@ namespace codequery.Drivers
             throw new NotImplementedException($"Cannot generate constant of type {constant.FieldType}");
         }
 
-        private void GenerateCommaSep<T>(SqlGenerator sql, IEnumerable<T> fields, bool newline, Action<T> callback) where T: class
+        private void GenerateCommaSep<T>(SqlGenerator sql, IEnumerable<T> fields, bool newline, Action<T, int> callback) where T: class
         {
+            int i = 0;
             foreach (var field in fields)
             {
-                callback?.Invoke(field);
+                callback?.Invoke(field, i++);
                 if (field != fields.Last())
                 {
                     sql.Add(", ");
@@ -214,13 +215,13 @@ namespace codequery.Drivers
             if (query.Fields == null)
             {
                 // Select all fields from
-                GenerateCommaSep(sql, query.From.Columns, true, f => {
+                GenerateCommaSep(sql, query.From.Columns, true, (f,_) => {
                     GenerateField(sql, new SqlColumnExpression(f.Type, f.Name, query.From));
                 });
                 return;
             }
             
-            GenerateCommaSep(sql, query.Fields, true, field => {
+            GenerateCommaSep(sql, query.Fields, true, (field, _) => {
                 GenerateField(sql, field.Expression);
                 if (!String.IsNullOrEmpty(field.Alias)) 
                 {
@@ -251,12 +252,12 @@ namespace codequery.Drivers
             if (query.GroupBy?.Length > 0)
             {
                 sql.Add("GROUP BY");
-                GenerateCommaSep(sql, query.GroupBy, false, f => GenerateField(sql, f));
+                GenerateCommaSep(sql, query.GroupBy, false, (f,_) => GenerateField(sql, f));
             }
             if (query.OrderBy?.Length > 0)
             {
                 sql.Add("ORDER BY");
-                GenerateCommaSep(sql, query.OrderBy, false, f => {
+                GenerateCommaSep(sql, query.OrderBy, false, (f,_) => {
                     GenerateField(sql, f.By);
                     sql.Add(f.Ascending ? "ASC" : "DESC");
                 });
@@ -277,8 +278,8 @@ namespace codequery.Drivers
                 sql.NewLine();
                 sql.Add("SELECT ");
                 
-                GenerateCommaSep(sql, constant.ValueExpressions, false, exp => {
-                    sql.Add(GenerateConstant(exp));
+                GenerateCommaSep(sql, constant.ValueExpressions, false, (exp, i) => {
+                    sql.Add($"{GenerateConstant(exp)} AS {constant.Columns[i].Name}");
                 });
 
                 return;
