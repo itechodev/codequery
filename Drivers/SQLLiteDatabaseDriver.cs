@@ -274,23 +274,25 @@ namespace codequery.Drivers
             // Select 10 as value
             if (from is SqlConstantSource constant)
             {
-                sql.Add("(", true);
-                sql.Indent();
+                sql.NewLine();
                 sql.Add("SELECT ");
-                // GenereateSelectFields(sql, from.;
-                sql.UnIndent();
-                sql.Add(") {constant.Alias}");
+                
+                GenerateCommaSep(sql, constant.ValueExpressions, false, exp => {
+                    sql.Add(GenerateConstant(exp));
+                });
+
                 return;
             }
             if (from is SqlSubQuerySource sub) 
             {
                 sql.Add("(");
                 GenerateSource(sql, sub.Source);
-                sql.Add(") {constant.Alias}");
+                sql.Add($") {sub.Alias}");
                 return;
             }
             if (from is SqlUnionSource union)
             {
+                sql.Add("(");
                 sql.Indent();
                 foreach (var u in union.Sources)
                 {
@@ -298,10 +300,12 @@ namespace codequery.Drivers
                     if (u != union.Sources.Last())
                     {
                         sql.NewLine();
-                        sql.Add(union.UnionAll ? "UNION ALL" : "UNION", true);
+                        sql.Add(union.UnionAll ? "UNION ALL" : "UNION");
                     }
                 }
                 sql.UnIndent();
+                sql.NewLine();
+                sql.Add($") {union.Alias}");
                 return;
             }
             throw new NotImplementedException($"Could not generate source from {from.GetType()}");

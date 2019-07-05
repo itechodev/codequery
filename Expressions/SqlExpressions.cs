@@ -74,6 +74,22 @@ namespace codequery.Expressions
         }
 
         public object RowValue { get; }
+
+        public SqlConstantExpression[] ValueExpressions
+        {
+            get
+            {
+                var values = RowValue
+                    .GetType()
+                    .GetProperties()
+                    .Select(p => p.GetValue(RowValue))
+                    .ToArray();
+
+                return Columns
+                    .Select((c,i) => new SqlConstantExpression(c.Type, values[i]))
+                    .ToArray();
+            }
+        }
     }
 
     public class SqlSubQuerySource : SqlQuerySource
