@@ -153,6 +153,13 @@ namespace codequery.QuerySources
         {
             // Keetp the same source and column definitions
             var bottom = new SqlConstantSource(fields, Query.From.Columns, "b");
+            // Append to union if there is any
+            if (Query.From is SqlUnionSource union && !union.UnionAll)
+            {
+                union.Sources.Add(bottom);
+                return new ResultQuerySource<T>(Query);
+            }
+            // else create new UnionSource
             var select = new SelectQuery
             {
                 From = new SqlUnionSource(Query.From, bottom, false, Query.From.Columns, "c")
@@ -162,7 +169,15 @@ namespace codequery.QuerySources
 
         public ResultQuerySource<T> UnionAll(T fields)
         {
+             // Keetp the same source and column definitions
             var bottom = new SqlConstantSource(fields, Query.From.Columns, "b");
+            // Append to union if there is any
+            if (Query.From is SqlUnionSource union && union.UnionAll)
+            {
+                union.Sources.Add(bottom);
+                return new ResultQuerySource<T>(Query);
+            }
+            // else create new UnionSource
             var select = new SelectQuery
             {
                 From = new SqlUnionSource(Query.From, bottom, true, Query.From.Columns, "c")
@@ -180,9 +195,6 @@ namespace codequery.QuerySources
         {
             return null;
         }
-
-        
-
     }
 
     public class TableDefinition
@@ -226,7 +238,7 @@ namespace codequery.QuerySources
         // SubQuery
         public QuerySource<T> From<T>(ResultQuerySource<T> source)
         {
-            return new QuerySource<T>();
+            return new QuerySource<T>(source.Query);
         }
 
         // Tables to be declared in derived table

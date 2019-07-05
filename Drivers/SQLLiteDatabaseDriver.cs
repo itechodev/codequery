@@ -209,9 +209,18 @@ namespace codequery.Drivers
             }
         }
         
-        private void GenereateSelectFields(SqlGenerator sql, SelectField[] fields)
+        private void GenereateSelectFields(SqlGenerator sql, SelectQuery query)
         {
-            GenerateCommaSep(sql, fields, true, field => {
+            if (query.Fields == null)
+            {
+                // Select all fields from
+                GenerateCommaSep(sql, query.From.Columns, true, f => {
+                    GenerateField(sql, new SqlColumnExpression(f.Type, f.Name, query.From));
+                });
+                return;
+            }
+            
+            GenerateCommaSep(sql, query.Fields, true, field => {
                 GenerateField(sql, field.Expression);
                 if (!String.IsNullOrEmpty(field.Alias)) 
                 {
@@ -225,7 +234,7 @@ namespace codequery.Drivers
             SqlGenerator sql = new SqlGenerator();
             sql.Add("SELECT");
             sql.NewLineIndent();
-            GenereateSelectFields(sql, query.Fields);
+            GenereateSelectFields(sql, query);
             sql.NewLineUnIndent();
             sql.Add("FROM");
             sql.NewLineIndent();
@@ -278,6 +287,21 @@ namespace codequery.Drivers
                 sql.Add("(");
                 GenerateSource(sql, sub.Source);
                 sql.Add(") {constant.Alias}");
+                return;
+            }
+            if (from is SqlUnionSource union)
+            {
+                sql.Indent();
+                foreach (var u in union.Sources)
+                {
+                    GenerateSource(sql, u);
+                    if (u != union.Sources.Last())
+                    {
+                        sql.NewLine();
+                        sql.Add(union.UnionAll ? "UNION ALL" : "UNION", true);
+                    }
+                }
+                sql.UnIndent();
                 return;
             }
             throw new NotImplementedException($"Could not generate source from {from.GetType()}");
