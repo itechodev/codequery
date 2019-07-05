@@ -152,12 +152,22 @@ namespace codequery.QuerySources
         public ResultQuerySource<T> Union(T fields)
         {
             // Keetp the same source and column definitions
-            return new ResultQuerySource<T>(Query);
+            var bottom = new SqlConstantSource(fields, Query.From.Columns, "b");
+            var select = new SelectQuery
+            {
+                From = new SqlUnionSource(Query.From, bottom, false, Query.From.Columns, "c")
+            };
+            return new ResultQuerySource<T>(select);
         }
 
         public ResultQuerySource<T> UnionAll(T fields)
         {
-            return new ResultQuerySource<T>(Query);
+            var bottom = new SqlConstantSource(fields, Query.From.Columns, "b");
+            var select = new SelectQuery
+            {
+                From = new SqlUnionSource(Query.From, bottom, true, Query.From.Columns, "c")
+            };
+            return new ResultQuerySource<T>(select);
         }
 
 
@@ -208,7 +218,7 @@ namespace codequery.QuerySources
             var def = GetTableDefinition(typeof(T));
             var select = new SelectQuery
             {
-                From = new SqlConstantSource(def.Columns, "b") 
+                From = new SqlConstantSource(fields, def.Columns, "b") 
             };
             return new ResultQuerySource<T>(select);
         }

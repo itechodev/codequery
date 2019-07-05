@@ -25,6 +25,7 @@
 // This only lists the clases necessary to generate SQL
 // It's no safegauard for generating invalid SQL
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using codequery.QuerySources;
 
@@ -66,9 +67,13 @@ namespace codequery.Expressions
 
     public class SqlConstantSource : SqlQuerySource
     {
-        public SqlConstantSource(ColumnDefinition[] columns, string alias) : base(columns, alias)
+        public SqlConstantSource(object rowValue, ColumnDefinition[] columns, string alias) : base(columns, alias)
         {
+            // tuple or anonymous object
+            RowValue = rowValue;
         }
+
+        public object RowValue { get; }
     }
 
     public class SqlSubQuerySource : SqlQuerySource
@@ -79,6 +84,19 @@ namespace codequery.Expressions
         }
 
         public SqlQuerySource Source { get; private set; }
+    }
+
+    public class SqlUnionSource : SqlQuerySource
+    {
+        public SqlUnionSource(SqlQuerySource top, SqlQuerySource bottom, bool unionAll, ColumnDefinition[] columns, string alias) : base(columns, alias)
+        {
+            Sources = new List<SqlQuerySource> { top, bottom };
+            // Is it a union or union all?
+            UnionAll = unionAll;
+        }
+
+        public List<SqlQuerySource> Sources { get; set; }
+        public bool UnionAll { get; }
     }
 
     public enum FieldType
