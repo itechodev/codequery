@@ -59,17 +59,19 @@ namespace codequery.App
         {
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
             
+            // todo: add where second parameter for AND / OR
             var db = new MyDatabase();
-            // var exp = db.Stations
-            //     .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
-            //     .Where(s => s.UID.Contains("11"))
-            //     .Select(s => new {
-            //         aa = s.FarmId,
-            //         bb = s.Active
-            //     });
+            var exp = db.Stations
+                .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
+                .Where(s => s.UID.Contains("11"))
+                .Select(s => new {
+                    aa = s.FarmId,
+                    bb = s.Active
+                });
 
-            // Console.WriteLine(driver.GenerateSelect(exp.Query));
+            Console.WriteLine(driver.GenerateSelect(exp.Query));
 
+            // todo: test Select with tuples
             var constExp = db.From(
                 db.Select(new { Num = 1, Name = "Pizza"})
                 .Union(new { Num = 2, Name = "Burgers"})
