@@ -233,6 +233,12 @@ namespace codequery.Drivers
         public string GenerateSelect(SelectQuery query)
         {
             SqlGenerator sql = new SqlGenerator();
+            // If there is only 1 const selection
+            if (query.From is SqlConstantSource constSource)
+            {
+                GenerateSource(sql, constSource);
+                return sql.Generate();
+            }
             sql.Add("SELECT");
             sql.NewLineIndent();
             GenereateSelectFields(sql, query);
