@@ -71,7 +71,12 @@ namespace codequery.App
                 new { Id = 3, Category = 2, Name = "A"}
             ))
             .GroupBy(x => x.Category)
-            .Select(g => g.Count());
+            .Select(x => new {
+                category = x.Value,
+                count = x.Count(),
+                max = x.Max(k => k.Name),
+                min = x.Min(k => k.Name)
+            });
         } 
 
         private void Other()

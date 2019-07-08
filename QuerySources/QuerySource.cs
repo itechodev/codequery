@@ -60,9 +60,9 @@ namespace codequery.QuerySources
         }
 
         // Can only select the group by fields / and or aggregates for the rest
-        public F Select<F>(Expression<Func<Aggregate<N, T>, F>> aa)
+        public ResultQuerySource<F> Select<F>(Expression<Func<Aggregate<N, T>, F>> aa)
         {
-            return default(F);
+            return new ResultQuerySource<F>(null);
         }
     }
     
@@ -74,9 +74,14 @@ namespace codequery.QuerySources
             return 0;
         }
 
-        public int Max(Expression<Func<N>> clause)
+        public P Max<P>(Expression<Func<N, P>> clause)
         {
-            return 0;
+            return default(P);
+        }
+
+        public P Min<P>(Expression<Func<N, P>> clause)
+        {
+            return default(P);
         }
     }
 
@@ -130,7 +135,13 @@ namespace codequery.QuerySources
 
         public AggregateQuerySource<T, N> GroupBy<N>(Expression<Func<T, N>> groupBy)
         {
-            return null;
+            var parser = new ExpressionParser(new QuerySourceType[] 
+            {
+                new QuerySourceType(Query.From, typeof(T))
+            });
+            var groupExp = parser.ToSqlExpression(groupBy);
+            Query.GroupBy = new  SqlExpression[1] { groupExp };
+            return new AggregateQuerySource<T, N>(Query);
         }
 
         public QuerySource<T> Where(Expression<Func<T, bool>> predicate, WhereType type = WhereType.And)

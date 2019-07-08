@@ -346,7 +346,7 @@ namespace codequery.Expressions
         public SqlQuerySource From { get; set; }
         public JoinClause[] Joins { get; set; }
         public SqlExpression Where { get; set; }
-        public SqlColumnExpression[] GroupBy { get; set; }
+        public SqlExpression[] GroupBy { get; set; }
         public OrderByClause[] OrderBy { get; set; }
     }
 
