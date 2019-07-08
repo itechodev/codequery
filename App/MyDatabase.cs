@@ -63,7 +63,6 @@ namespace codequery.App
 
         public void Run()
         {
-            // todo: add where second parameter for AND / OR
             var db = new MyDatabase();
             var exp = db.Stations
                 .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")

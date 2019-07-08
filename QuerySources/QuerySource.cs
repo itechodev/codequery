@@ -7,6 +7,11 @@ using codequery.Parser;
 
 namespace codequery.QuerySources
 {
+    public enum WhereType
+    {
+        Or,
+        And
+    }
     // Each query source needs to a definition of all the columns
     public class BaseQuerySource
     {
@@ -69,7 +74,7 @@ namespace codequery.QuerySources
             return new ResultQuerySource<N>(Query);
         }
 
-        public QuerySource<T> Where(Expression<Func<T, bool>> predicate)
+        public QuerySource<T> Where(Expression<Func<T, bool>> predicate, WhereType type = WhereType.And)
         {
             // x => x.Field. > 10...
             // .Where(s => s.Active)
@@ -86,8 +91,12 @@ namespace codequery.QuerySources
             }
             else
             {
-                // Combine previous with AND
-                Query.Where = new SqlMathExpression(clause.FieldType, Query.Where, FieldMathOperator.And, clause);
+                // Combine previous with AND or OR
+                Query.Where = new SqlMathExpression(
+                    clause.FieldType, 
+                    Query.Where, 
+                    type == WhereType.And ? FieldMathOperator.And : FieldMathOperator.Or, 
+                    clause);
             }
             return new QuerySource<T>(Query);
         }
