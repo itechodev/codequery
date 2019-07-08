@@ -65,6 +65,18 @@ namespace codequery.App
         {
             var db = new MyDatabase();
             
+            var unionList = db.From(db.Union(
+                new { Id = 1, Category = 1, Name = "A"},
+                new { Id = 2, Category = 1, Name = "B"},
+                new { Id = 3, Category = 2, Name = "A"}
+            ))
+            .GroupBy(x => x.Category)
+            .Select(g => g.Count());
+        } 
+
+        private void Other()
+        {
+            var db = new MyDatabase();
             var exp = db.Stations
                 .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
                 .Where(s => s.UID.Contains("11"))
@@ -73,7 +85,7 @@ namespace codequery.App
                     bb = s.Active
                 });
             LogSql(exp);
-            
+
             LogSql(db.Select(new { Num = 1, Name = "Pizza"}));
 
             LogSql(db.Select((1, "Hannes hond")));

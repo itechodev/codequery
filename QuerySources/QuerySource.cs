@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Linq.Expressions;
 using codequery.Expressions;
@@ -44,6 +45,39 @@ namespace codequery.QuerySources
     {
         public L Left { get; set; }
         public R Right { get; set; }
+    }
+
+    public class AggregateQuerySource<T, N> : BaseQuerySource
+    {
+        
+        public AggregateQuerySource(SelectQuery select) : base(select)
+        {
+        }
+
+        public void Having()
+        {
+
+        }
+
+        // Can only select the group by fields / and or aggregates for the rest
+        public F Select<F>(Expression<Func<Aggregate<N, T>, F>> aa)
+        {
+            return default(F);
+        }
+    }
+    
+    public class Aggregate<T, N>
+    {
+        public T Value { get; set; }
+        public int Count()
+        {
+            return 0;
+        }
+
+        public int Max(Expression<Func<N>> clause)
+        {
+            return 0;
+        }
     }
 
     public class QuerySource<T> : BaseQuerySource
@@ -92,6 +126,11 @@ namespace codequery.QuerySources
                 Query.Fields = new SelectField[1] { new SelectField(parser.ToSqlExpression(fields), null)};
             }
             return new ResultQuerySource<N>(Query);
+        }
+
+        public AggregateQuerySource<T, N> GroupBy<N>(Expression<Func<T, N>> groupBy)
+        {
+            return null;
         }
 
         public QuerySource<T> Where(Expression<Func<T, bool>> predicate, WhereType type = WhereType.And)
