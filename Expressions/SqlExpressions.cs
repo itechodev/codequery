@@ -67,26 +67,20 @@ namespace codequery.Expressions
 
     public class SqlConstantSource : SqlQuerySource
     {
-        public SqlConstantSource(object rowValue, ColumnDefinition[] columns, string alias) : base(columns, alias)
+        public SqlConstantSource(object[] rowValues, ColumnDefinition[] columns, string alias) : base(columns, alias)
         {
             // tuple or anonymous object
-            RowValue = rowValue;
+            RowValues = rowValues;
         }
 
-        public object RowValue { get; }
+        public object[] RowValues { get; }
 
         public SqlConstantExpression[] ValueExpressions
         {
             get
             {
-                var values = RowValue
-                    .GetType()
-                    .GetProperties()
-                    .Select(p => p.GetValue(RowValue))
-                    .ToArray();
-
                 return Columns
-                    .Select((c,i) => new SqlConstantExpression(c.Type, values[i]))
+                    .Select((c,i) => new SqlConstantExpression(c.Type, RowValues[i]))
                     .ToArray();
             }
         }

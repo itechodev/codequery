@@ -160,8 +160,11 @@ namespace codequery.QuerySources
 
         public ResultQuerySource<T> Union(T fields)
         {
+            var def = Database.GetTableDefinition(typeof(T));
+            var values = def.FieldsAndProps.Select(f => f.GetValue(fields)).ToArray();
+            
             // Keetp the same source and column definitions
-            var bottom = new SqlConstantSource(fields, Query.From.Columns, "b");
+            var bottom = new SqlConstantSource(values, Query.From.Columns, "b");
             // Append to union if there is any
             if (Query.From is SqlUnionSource union && !union.UnionAll)
             {
@@ -178,8 +181,11 @@ namespace codequery.QuerySources
 
         public ResultQuerySource<T> UnionAll(T fields)
         {
+            var def = Database.GetTableDefinition(typeof(T));
+            var values = def.FieldsAndProps.Select(f => f.GetValue(fields)).ToArray();
+            
              // Keetp the same source and column definitions
-            var bottom = new SqlConstantSource(fields, Query.From.Columns, "b");
+            var bottom = new SqlConstantSource(values, Query.From.Columns, "b");
             // Append to union if there is any
             if (Query.From is SqlUnionSource union && union.UnionAll)
             {
@@ -210,7 +216,7 @@ namespace codequery.QuerySources
     {
         public string Name { get; set; }
         public ColumnDefinition[] Columns { get; set; }
-
+        public FieldProp[] FieldsAndProps { get; internal set; }
     }
     
     public class ColumnDefinition
@@ -237,9 +243,11 @@ namespace codequery.QuerySources
         public ResultQuerySource<T> Select<T>(T fields)
         {
             var def = GetTableDefinition(typeof(T));
+            var values = def.FieldsAndProps.Select(f => f.GetValue(fields)).ToArray();
+                 
             var select = new SelectQuery
             {
-                From = new SqlConstantSource(fields, def.Columns, "b") 
+                From = new SqlConstantSource(values, def.Columns, "b") 
             };
             return new ResultQuerySource<T>(select);
         }
@@ -278,15 +286,12 @@ namespace codequery.QuerySources
             var ret = new TableDefinition();
              // Need to cater for attributes columnName, StringLength etc.
             ret.Name = type.Name;
-            ret.Columns = type
-                .GetProperties()
-                .Select(p => new ColumnDefinition(p.Name, ToSqlField(p.PropertyType)))
-                .Concat(
-                    type.GetFields()
-                    .Select(f => new ColumnDefinition(f.Name, ToSqlField(f.FieldType)))
-                )
+            ret.FieldsAndProps = ReflectionHelper.GetFiedAndProps(type);
+            
+            ret.Columns = ret.FieldsAndProps
+                .Select(f => new ColumnDefinition(f.Name, ToSqlField(f.Type)))
                 .ToArray();
-
+                
             return ret;
         }
 
