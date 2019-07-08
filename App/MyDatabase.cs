@@ -65,31 +65,39 @@ namespace codequery.App
         {
             var db = new MyDatabase();
             
-            // var exp = db.Stations
-            //     .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
-            //     .Where(s => s.UID.Contains("11"))
-            //     .Select(s => new {
-            //         aa = s.FarmId,
-            //         bb = s.Active
-            //     });
-            // LogSql(exp);
+            var exp = db.Stations
+                .Where(s => s.Active.ToString().Substring(1).ToLower() == "aa")
+                .Where(s => s.UID.Contains("11"))
+                .Select(s => new {
+                    aa = s.FarmId,
+                    bb = s.Active
+                });
+            LogSql(exp);
             
-            // LogSql(db.Select(new { Num = 1, Name = "Pizza"}));
+            LogSql(db.Select(new { Num = 1, Name = "Pizza"}));
 
             LogSql(db.Select((1, "Hannes hond")));
 
-            // var constExp = db.From(
-            //     db.Select(new { Num = 1, Name = "Pizza"})
-            //     .Union(new { Num = 2, Name = "Burgers"})
-            //     .Union(new { Num = 3, Name = "Pancakes"})
-            // )
-            // .Where(x => x.Num > 0)
-            // .Select(x => new {
-            //     Food = x.Name,
-            //     Price = x.Num * 2
-            // });
+            var unionList = db.From(db.Union(
+                new { Calories = 212, Name = "Pizza"},
+                new { Calories = 11, Name = "Burgers"},
+                new { Calories = 0, Name = "Water"}
+            )).Where(x => x.Calories > 10).Select(n => n.Name);
+
+            LogSql(unionList);
+
+            var constExp = db.From(
+                db.Select(new { Num = 1, Name = "Pizza"})
+                .Union(new { Num = 2, Name = "Burgers"})
+                .Union(new { Num = 3, Name = "Pancakes"})
+            )
+            .Where(x => x.Num > 0)
+            .Select(x => new {
+                Food = x.Name,
+                Price = x.Num * 2
+            });
             
-            // LogSql(constExp);    
+            LogSql(constExp);    
         }
 
         private void SqlBuilder()

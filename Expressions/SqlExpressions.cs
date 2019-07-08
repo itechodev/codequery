@@ -98,6 +98,13 @@ namespace codequery.Expressions
 
     public class SqlUnionSource : SqlQuerySource
     {
+        public SqlUnionSource(bool unionAll, ColumnDefinition[] columns, string alias) : base(columns, alias)
+        {
+            Sources = new List<SqlQuerySource>();
+            // Is it a union or union all?
+            UnionAll = unionAll;
+        }
+        
         public SqlUnionSource(SqlQuerySource top, SqlQuerySource bottom, bool unionAll, ColumnDefinition[] columns, string alias) : base(columns, alias)
         {
             Sources = new List<SqlQuerySource> { top, bottom };

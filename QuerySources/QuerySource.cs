@@ -252,6 +252,39 @@ namespace codequery.QuerySources
             return new ResultQuerySource<T>(select);
         }
 
+        public ResultQuerySource<T> Union<T>(params T[] values)
+        {
+            return Union<T>(values, false);
+        }
+
+        public ResultQuerySource<T> UnionAll<T>(params T[] values)
+        {
+            return Union<T>(values, true);
+        }
+
+        public ResultQuerySource<T> Union<T>(IEnumerable<T> values, bool unionAll = false)
+        {
+            var def = GetTableDefinition(typeof(T));
+            var rows = values
+                .Select(v => def.FieldsAndProps.Select(f => f.GetValue(v)))
+                .ToArray();
+
+            // Only single constexpression
+            if (rows.Count() == 1)
+            {
+                return new ResultQuerySource<T>(new SelectQuery { From = new SqlConstantSource(rows[0].ToArray(), def.Columns, "us") });
+            }
+                
+            SqlUnionSource union = new SqlUnionSource(unionAll, def.Columns, "ul");
+            foreach (var row in values)
+            {
+                var constValues = def.FieldsAndProps.Select(f => f.GetValue(row));
+                union.Sources.Add(new SqlConstantSource(constValues.ToArray(), def.Columns, null));
+            }
+            var select = new SelectQuery { From = union };
+            return new ResultQuerySource<T>(select);
+        }
+
         // SubQuery
         public QuerySource<T> From<T>(ResultQuerySource<T> source)
         {
