@@ -276,12 +276,17 @@ namespace codequery.QuerySources
         public static TableDefinition GetTableDefinition(Type type)
         {
             var ret = new TableDefinition();
-            // Cater for attributes
+             // Need to cater for attributes columnName, StringLength etc.
             ret.Name = type.Name;
             ret.Columns = type
                 .GetProperties()
                 .Select(p => new ColumnDefinition(p.Name, ToSqlField(p.PropertyType)))
+                .Concat(
+                    type.GetFields()
+                    .Select(f => new ColumnDefinition(f.Name, ToSqlField(f.FieldType)))
+                )
                 .ToArray();
+
             return ret;
         }
 
