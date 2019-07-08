@@ -82,7 +82,7 @@ namespace codequery.App
                 new { Calories = 212, Name = "Pizza"},
                 new { Calories = 11, Name = "Burgers"},
                 new { Calories = 0, Name = "Water"}
-            )).Where(x => x.Calories > 10).Select(n => n.Name);
+            )).Where(x => x.Calories > 10).SelectAll();
 
             LogSql(unionList);
 

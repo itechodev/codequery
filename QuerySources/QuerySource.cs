@@ -53,6 +53,14 @@ namespace codequery.QuerySources
             
         }
 
+        public ResultQuerySource<T> SelectAll()
+        {
+             Query.Fields = Query.From.Columns
+                    .Select(c => new SelectField(new SqlColumnExpression(c.Type, c.Name, Query.From), null))
+                    .ToArray();
+            return new ResultQuerySource<T>(Query);
+        }
+
         public ResultQuerySource<N> Select<N>(Expression<Func<T, N>> fields)
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
@@ -62,15 +70,27 @@ namespace codequery.QuerySources
 
             if (fields.Body is NewExpression newx)
             {
+                // x => new { ... }
                 Query.Fields = newx.Arguments.Select((a,i) => 
                     new SelectField(parser.ToSqlExpression(a), newx.Members[i].Name)
                 ).ToArray();
-            } 
-            else
+            }
+            else if (fields.Body is ParameterExpression p)
             {
+                // Same as selectAll
+                // x => x
+                if (p.Type != typeof(T))
+                {
+                    throw new Exception($"Type {p.Type.ToString()} is not part of query");
+                }
+                Query.Fields = Query.From.Columns
+                    .Select(c => new SelectField(new SqlColumnExpression(c.Type, c.Name, Query.From), null))
+                    .ToArray();
+            } else {
+                // x => x.name 
+                // x => x.func() 
                 Query.Fields = new SelectField[1] { new SelectField(parser.ToSqlExpression(fields), null)};
             }
-
             return new ResultQuerySource<N>(Query);
         }
 
