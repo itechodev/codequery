@@ -55,10 +55,14 @@ namespace codequery.App
 
     public class Application
     {
-        public void Run()
+        private void LogSql<T>(ResultQuerySource<T> query)
         {
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
-            
+            Console.WriteLine(driver.GenerateSelect(query.Query));
+        }
+
+        public void Run()
+        {
             // todo: add where second parameter for AND / OR
             var db = new MyDatabase();
             var exp = db.Stations
@@ -68,19 +72,23 @@ namespace codequery.App
                     aa = s.FarmId,
                     bb = s.Active
                 });
-
-            Console.WriteLine(driver.GenerateSelect(exp.Query));
+            LogSql(exp);
+            
+            LogSql(db.Select(new { Num = 1, Name = "Pizza"}));
 
             // todo: test Select with tuples
             var constExp = db.From(
                 db.Select(new { Num = 1, Name = "Pizza"})
                 .Union(new { Num = 2, Name = "Burgers"})
                 .Union(new { Num = 3, Name = "Pancakes"})
-            ).Where(x => x.Num > 0);
-
-            Console.WriteLine(driver.GenerateSelect(constExp.Query));
-
-                
+            )
+            .Where(x => x.Num > 0)
+            .Select(x => new {
+                Food = x.Name,
+                Price = x.Num * 2
+            });
+            
+            LogSql(constExp);    
         }
 
         private void SqlBuilder()
