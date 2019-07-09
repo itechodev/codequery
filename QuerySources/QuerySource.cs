@@ -69,7 +69,27 @@ namespace codequery.QuerySources
     public class Aggregate<T, N>
     {
         public T Value { get; set; }
+
+        // Will return null if all values returns null
+        public double? Average()
+        {
+            return 0;
+        }
         public int Count()
+        {
+            return 0;
+        }
+
+        public double? AverageDistinct()
+        {
+            return 0;
+        }
+        public int CountDistinct()
+        {
+            return 0;
+        }
+
+        public double Sum()
         {
             return 0;
         }
