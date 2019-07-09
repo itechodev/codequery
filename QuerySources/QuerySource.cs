@@ -56,6 +56,7 @@ namespace codequery.QuerySources
 
         public void Having()
         {
+            
 
         }
 
@@ -63,33 +64,49 @@ namespace codequery.QuerySources
         public ResultQuerySource<F> Select<F>(Expression<Func<Aggregate<N, T>, F>> aa)
         {
             return new ResultQuerySource<F>(null);
-        }
+         }
     }
-    
     public class Aggregate<T, N>
     {
         public T Value { get; set; }
 
-        // Will return null if all values returns null
-        public double? Average()
-        {
-            return 0;
-        }
+        
         public int Count()
         {
             return 0;
         }
-
-        public double? AverageDistinct()
-        {
-            return 0;
-        }
+        
         public int CountDistinct()
         {
             return 0;
         }
 
-        public double Sum()
+         public int? Average(Expression<Func<N, int>> field)
+        {
+            return 0;
+        }
+
+        public double? Average(Expression<Func<N, double>> field)
+        {
+            return 0;
+        }
+
+         public int? AverageDistinct(Expression<Func<N, int>> field)
+        {
+            return 0;
+        }
+
+        public double? AverageDistinct(Expression<Func<N, double>> field)
+        {
+            return 0;
+        }
+
+        public int? Sum(Expression<Func<N, int>> field)
+        {
+            return 0;
+        }
+
+        public double? Sum(Expression<Func<N, double>> field)
         {
             return 0;
         }
@@ -401,9 +418,9 @@ namespace codequery.QuerySources
                 {
                     From = new SqlTableSource(def, "a")
                 };
-            }            
+            }
         }
-
+        
         public static TableDefinition GetTableDefinition(Type type)
         {
             var ret = new TableDefinition();
