@@ -2,9 +2,13 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using codequery.Expressions;
+using codequery.QuerySources;
 
 namespace codequery.Parser
 {
+    // QuerySourceTypeType
+
+    
     public class QuerySourceType
     {
         // s => 
@@ -50,9 +54,20 @@ namespace codequery.Parser
             {
                 if (member.Expression is ParameterExpression param)
                 {
+                    // Check if accessing from a aggregate source
+
                     // s => [s].Active
                     var memberName = member.Member.Name;
                     var source = _sources.First(s => s.Type == param.Type).Source;
+                    
+                    // param.Type.IsInterface
+                    if (param.Type.GetInterfaces().Any(x =>
+                        x.IsGenericType &&
+                        x.GetGenericTypeDefinition() == typeof(Aggregate<,>)))
+                    {
+                        // Check for aggregate value's and functions
+                    }
+
                     // Get Query Sourve by memberExpression
                     return new SqlColumnExpression(source.GetColumnType(memberName), memberName, source);
                     // param.Name ==

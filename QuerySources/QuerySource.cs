@@ -61,9 +61,38 @@ namespace codequery.QuerySources
         }
 
         // Can only select the group by fields / and or aggregates for the rest
-        public ResultQuerySource<F> Select<F>(Expression<Func<Aggregate<N, T>, F>> aa)
+        public ResultQuerySource<F> Select<F>(Expression<Func<Aggregate<N, T>, F>> fields)
         {
-            return new ResultQuerySource<F>(null);
+            var parser = new ExpressionParser(new QuerySourceType[] 
+            {
+                new QuerySourceType(Query.From, typeof(Aggregate<N, T>)),
+            });
+
+            if (fields.Body is NewExpression newx)
+            {
+                // x => new { ... }
+                Query.Fields = newx.Arguments.Select((a,i) => 
+                    new SelectField(parser.ToSqlExpression(a), newx.Members[i].Name)
+                ).ToArray();
+            }
+            else if (fields.Body is ParameterExpression p)
+            {
+                // Same as selectAll
+                // x => x
+                if (p.Type != typeof(T))
+                {
+                    throw new Exception($"Type {p.Type.ToString()} is not part of query");
+                }
+                Query.Fields = Query.From.Columns
+                    .Select(c => new SelectField(new SqlColumnExpression(c.Type, c.Name, Query.From), null))
+                    .ToArray();
+            } else 
+            {
+                // x => x.name 
+                // x => x.func() 
+                Query.Fields = new SelectField[1] { new SelectField(parser.ToSqlExpression(fields), null)};
+            }
+            return new ResultQuerySource<F>(Query);
          }
     }
     public interface Aggregate<T, N>

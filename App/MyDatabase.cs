@@ -74,9 +74,12 @@ namespace codequery.App
             .Select(x => new {
                 category = x.Value,
                 count = x.Count(),
+                aa = x.Sum(k => k.Category),
                 max = x.Max(k => k.Name),
                 min = x.Min(k => k.Name)
             });
+
+            LogSql(unionList);
         } 
 
         private void Other()
