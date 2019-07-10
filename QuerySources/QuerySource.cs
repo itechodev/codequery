@@ -66,60 +66,19 @@ namespace codequery.QuerySources
             return new ResultQuerySource<F>(null);
          }
     }
-    public class Aggregate<T, N>
+    public interface Aggregate<T, N>
     {
-        public T Value { get; set; }
-
-        
-        public int Count()
-        {
-            return 0;
-        }
-        
-        public int CountDistinct()
-        {
-            return 0;
-        }
-
-         public int? Average(Expression<Func<N, int>> field)
-        {
-            return 0;
-        }
-
-        public double? Average(Expression<Func<N, double>> field)
-        {
-            return 0;
-        }
-
-         public int? AverageDistinct(Expression<Func<N, int>> field)
-        {
-            return 0;
-        }
-
-        public double? AverageDistinct(Expression<Func<N, double>> field)
-        {
-            return 0;
-        }
-
-        public int? Sum(Expression<Func<N, int>> field)
-        {
-            return 0;
-        }
-
-        public double? Sum(Expression<Func<N, double>> field)
-        {
-            return 0;
-        }
-
-        public P Max<P>(Expression<Func<N, P>> clause)
-        {
-            return default(P);
-        }
-
-        public P Min<P>(Expression<Func<N, P>> clause)
-        {
-            return default(P);
-        }
+        T Value { get; set; }
+        int Count();
+        int CountDistinct();
+        int? Average(Expression<Func<N, int>> field);
+        double? Average(Expression<Func<N, double>> field);
+        int? AverageDistinct(Expression<Func<N, int>> field);
+        double? AverageDistinct(Expression<Func<N, double>> field);
+        int? Sum(Expression<Func<N, int>> field);
+        double? Sum(Expression<Func<N, double>> field);
+        P Max<P>(Expression<Func<N, P>> clause);
+        P Min<P>(Expression<Func<N, P>> clause);
     }
 
     public class QuerySource<T> : BaseQuerySource
