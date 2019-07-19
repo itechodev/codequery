@@ -70,9 +70,10 @@ namespace codequery.App
                 new { Id = 2, Category = 1, Name = "B"},
                 new { Id = 3, Category = 2, Name = "A"}
             ))
-            .GroupBy(x => x.Category)
+            .GroupBy(x => new {Category = x.Category * 2, x.Name})
             .Select(x => new {
-                category = x.Value,
+                category = x.Value.Category,
+                name = x.Value.Name,
                 count = x.Count(),
                 aa = x.Sum(k => k.Category),
                 max = x.Max(k => k.Name),
