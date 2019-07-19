@@ -65,7 +65,7 @@ namespace codequery.QuerySources
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(Query.From, typeof(Aggregate<N, T>), SourceType.Aggregate),
+                new QuerySourceType(Query, typeof(Aggregate<N, T>), SourceType.Aggregate),
             });
 
             if (fields.Body is NewExpression newx)
@@ -129,7 +129,7 @@ namespace codequery.QuerySources
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(Query.From, typeof(T), SourceType.Instance)
+                new QuerySourceType(Query, typeof(T), SourceType.Instance)
             });
 
             if (fields.Body is NewExpression newx)

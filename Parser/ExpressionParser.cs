@@ -20,13 +20,13 @@ namespace codequery.Parser
     public class QuerySourceType
     {
         // s => 
-        public QuerySourceType(SqlQuerySource source, Type type, SourceType sourceType)
+        public QuerySourceType(SelectQuery source, Type type, SourceType sourceType)
         {
             this.Source = source;
             this.Type = type;
             this.SourceType = sourceType;
         }
-        public SqlQuerySource Source { get; set; }
+        public SelectQuery Source { get; set; }
         public Type Type { get; set; }
         public SourceType SourceType { get; set; }
     }
@@ -68,18 +68,23 @@ namespace codequery.Parser
 
                     // s => [s].Active
                     var memberName = member.Member.Name;
-                    var source = _sources.First(s => s.Type == param.Type).Source;
-                    
-                    // param.Type.IsInterface
-                    if (param.Type.GetInterfaces().Any(x =>
-                        x.IsGenericType &&
-                        x.GetGenericTypeDefinition() == typeof(Aggregate<,>)))
+                    var source = _sources.First(s => s.Type == param.Type);
+                    var querySource = source?.Source.From;
+
+                    if (source.SourceType == SourceType.Instance)
                     {
                         // Check for aggregate value's and functions
+                        // x => x.Value
+                        if (memberName == "Value") 
+                        {
+                            // return new SqlColumnExpression(querySource.GetColumnType(memberName))
+                            return null;
+                        }
                     }
 
+                    
                     // Get Query Sourve by memberExpression
-                    return new SqlColumnExpression(source.GetColumnType(memberName), memberName, source);
+                    return new SqlColumnExpression(querySource.GetColumnType(memberName), memberName, querySource);
                     // param.Name ==
                     // param.Type
                 }
