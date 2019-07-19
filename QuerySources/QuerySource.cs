@@ -65,7 +65,7 @@ namespace codequery.QuerySources
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(Query.From, typeof(Aggregate<N, T>)),
+                new QuerySourceType(Query.From, typeof(Aggregate<N, T>), SourceType.Aggregate),
             });
 
             if (fields.Body is NewExpression newx)
@@ -129,7 +129,7 @@ namespace codequery.QuerySources
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(Query.From, typeof(T))
+                new QuerySourceType(Query.From, typeof(T), SourceType.Instance)
             });
 
             if (fields.Body is NewExpression newx)
@@ -162,7 +162,7 @@ namespace codequery.QuerySources
         {
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(Query.From, typeof(T))
+                new QuerySourceType(Query.From, typeof(T), SourceType.Instance)
             });
             var groupExp = parser.ToSqlExpression(groupBy);
             Query.GroupBy = new  SqlExpression[1] { groupExp };
@@ -177,7 +177,7 @@ namespace codequery.QuerySources
             
             var parser = new ExpressionParser(new QuerySourceType[] 
             {
-                new QuerySourceType(Query.From, typeof(T))
+                new QuerySourceType(Query.From, typeof(T), SourceType.Instance)
             });
             var clause = parser.ToSqlExpression(predicate);
             if (Query.Where == null)

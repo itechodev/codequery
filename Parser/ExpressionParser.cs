@@ -7,18 +7,28 @@ using codequery.QuerySources;
 namespace codequery.Parser
 {
     // QuerySourceTypeType
+    public enum SourceType
+    {
+        // a normal class instance. Cols as per class instance
+        Instance,
+        Aggregate
+    }
 
+    // Associate given type with members and functions that can be called
+    // For instance: .Where(x => x.Caption.Containts("xx"))
     
     public class QuerySourceType
     {
         // s => 
-        public QuerySourceType(SqlQuerySource source, Type type)
+        public QuerySourceType(SqlQuerySource source, Type type, SourceType sourceType)
         {
             this.Source = source;
             this.Type = type;
+            this.SourceType = sourceType;
         }
         public SqlQuerySource Source { get; set; }
         public Type Type { get; set; }
+        public SourceType SourceType { get; set; }
     }
 
     public class ExpressionParser
