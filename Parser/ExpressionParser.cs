@@ -60,36 +60,36 @@ namespace codequery.Parser
                 // un.Method?
                 return ToSqlExpression(un.Operand);
             }
-            if (exp is MemberExpression member)
+            
+            if (exp is ParameterExpression param)
             {
-                if (member.Expression is ParameterExpression param)
+                // Check if accessing from a aggregate source
+
+                // s => [s].Active
+                var memberName = param.Name;
+                var source = _sources.First(s => s.Type == param.Type);
+                var querySource = source?.Source.From;
+
+                if (source.SourceType == SourceType.Instance)
                 {
-                    // Check if accessing from a aggregate source
-
-                    // s => [s].Active
-                    var memberName = member.Member.Name;
-                    var source = _sources.First(s => s.Type == param.Type);
-                    var querySource = source?.Source.From;
-
-                    if (source.SourceType == SourceType.Instance)
+                    // Check for aggregate value's and functions
+                    // x => x.Value
+                    if (memberName == "Value") 
                     {
-                        // Check for aggregate value's and functions
-                        // x => x.Value
-                        if (memberName == "Value") 
-                        {
-                            // return new SqlColumnExpression(querySource.GetColumnType(memberName))
-                            return null;
-                        }
+                        // return new SqlColumnExpression(querySource.GetColumnType(memberName))
+                        return null;
                     }
-
-                    
-                    // Get Query Sourve by memberExpression
-                    return new SqlColumnExpression(querySource.GetColumnType(memberName), memberName, querySource);
-                    // param.Name ==
-                    // param.Type
                 }
 
-                throw new NotImplementedException();
+                // Get Query Sourve by memberExpression
+                return new SqlColumnExpression(querySource.GetColumnType(memberName), memberName, querySource);
+                // param.Name ==
+                // param.Type
+            }
+
+            if (exp is MemberExpression member)
+            {
+                return ToSqlExpression(member.Expression);
             }
 
             // u.Name
