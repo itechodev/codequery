@@ -96,6 +96,7 @@ namespace codequery.App
             var q = books
                 .Join(authors)
                 .GroupBy((b, a) => a.Id)
+                .Having(l => l.Value == 0)
                 .Select(f => new {
                     Count = f.Count(),
                     Maxi = f.Max((b, a) => b.Name)

@@ -9,7 +9,7 @@ namespace codequery.App
         IResultSource<F> Select<F>(Expression<Func<A, F>> fields);
         IQuerySource<A> Where(Expression<Func<A, bool>> predicate);
         IQuerySource<A> Order(Expression<Action<A>> predicate);
-        IQuerySource<IAggregate<Key, A>> GroupBy<Key>(Expression<Func<A, Key>> groupBy);
+        IAggregateSource<IAggregate<Key, A>> GroupBy<Key>(Expression<Func<A, Key>> groupBy);
         IJoinSource<A, R> Join<R>(IQuerySource<R> right);
     }
 
@@ -18,7 +18,7 @@ namespace codequery.App
         IResultSource<F> Select<F>(Expression<Func<A, B, F>> fields);
         IJoinSource<A, B> Where(Expression<Func<A, B, bool>> predicate);
         IJoinSource<A, B> Order(Expression<Action<A, B>> predicate);
-        IQuerySource<IAggregate<Key, A, B>> GroupBy<Key>(Expression<Func<A, B, Key>> key);
+        IAggregateSource<IAggregate<Key, A, B>> GroupBy<Key>(Expression<Func<A, B, Key>> key);
         IJoinSource<A, B, R> Join<R>(IQuerySource<R> right);
     }
 
@@ -27,10 +27,16 @@ namespace codequery.App
         IResultSource<F> Select<F>(Expression<Func<A, B, C, F>> fields);
         IJoinSource<A, B, C> Where(Expression<Func<A, B, C, bool>> predicate);
         IJoinSource<A, B, C> Order(Expression<Action<A, B, C>> predicate);
-        IQuerySource<IAggregate<Key, A, B, C>> GroupBy<Key>(Expression<Func<A, B, C, Key>> key);
+        IAggregateSource<IAggregate<Key, A, B, C>> GroupBy<Key>(Expression<Func<A, B, C, Key>> key);
         // IJoinSource<A, B, R> Join<R>(IQuerySource<R> right);
     }
 
+    public interface IAggregateSource<T> : IQuerySource<T>
+    {
+        IQuerySource<T> Having(Expression<Func<T, bool>> predicate);
+    }
+
+    
     public interface IResultSource<T> : IQuerySource<T>
     {
         IResultSource<T> Union(IResultSource<T> fields);
