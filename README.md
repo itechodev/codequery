@@ -17,8 +17,9 @@ Procudes: "Delete from Products where Value <= 10"
 
 db
     .Products
-    .Update(p => p.Value, p => p.Value * 2)
+    .Set(p => p.Value, p => p.Value * 2)
     .Where(p => p.Active);
+    .Update();
 
 Produces: "Update Products set Value = Value * 2 Where Active"
 

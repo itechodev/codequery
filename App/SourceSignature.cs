@@ -13,6 +13,24 @@ namespace codequery.App
         IJoinSource<A, R> Join<R>(IQuerySource<R> right);
     }
 
+    public interface IUpdateTable<T>
+    {
+        IUpdateTable<T> Set<F>(Expression<Action<T>> field, Expression<Func<T, F>> value);
+        IUpdateTable<T> Where(Expression<Func<T, bool>> predicate);
+        bool Update();
+    }
+
+    public interface ITableSource<T>
+    {
+        IResultSource<T> SelectAll();
+        IResultSource<F> Select<F>(Expression<Func<T, F>> fields);
+        IJoinSource<T, R> Join<R>(IQuerySource<R> right);
+
+        IUpdateTable<T> Set<F>(Expression<Action<T>> field, Expression<Func<T, F>> value);
+        T Insert(T data);
+        bool Delete<F>(Expression<Func<T, F>> clause);
+    }
+
     public interface IJoinSource<A, B>
     {
         IResultSource<F> Select<F>(Expression<Func<A, B, F>> fields);
@@ -36,13 +54,12 @@ namespace codequery.App
         IQuerySource<T> Having(Expression<Func<T, bool>> predicate);
     }
 
-    
     public interface IResultSource<T> : IQuerySource<T>
     {
         IResultSource<T> Union(IResultSource<T> fields);
         IResultSource<T> UnionAll(IResultSource<T> fields);
         T FetchSingle();
-        T[] FetchArray();
+        T[] FetchArray(int skip = 0, int? take = null);
     }
 
     public interface IAggregate<Key, A>
