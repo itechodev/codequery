@@ -15,14 +15,23 @@ namespace codequery.App
 
     public interface IJoinSource<A, B>
     {
-        IResultSource<(A, B)> SelectAll();
         IResultSource<F> Select<F>(Expression<Func<A, B, F>> fields);
         IJoinSource<A, B> Where(Expression<Func<A, B, bool>> predicate);
         IJoinSource<A, B> Order(Expression<Action<A, B>> predicate);
         IQuerySource<IAggregate<Key, A, B>> GroupBy<Key>(Expression<Func<A, B, Key>> key);
+        IJoinSource<A, B, R> Join<R>(IQuerySource<R> right);
     }
 
-    public interface IResultSource<T>
+    public interface IJoinSource<A, B, C>
+    {
+        IResultSource<F> Select<F>(Expression<Func<A, B, C, F>> fields);
+        IJoinSource<A, B, C> Where(Expression<Func<A, B, C, bool>> predicate);
+        IJoinSource<A, B, C> Order(Expression<Action<A, B, C>> predicate);
+        IQuerySource<IAggregate<Key, A, B, C>> GroupBy<Key>(Expression<Func<A, B, C, Key>> key);
+        // IJoinSource<A, B, R> Join<R>(IQuerySource<R> right);
+    }
+
+    public interface IResultSource<T> : IQuerySource<T>
     {
         IResultSource<T> Union(IResultSource<T> fields);
         IResultSource<T> UnionAll(IResultSource<T> fields);
@@ -54,5 +63,18 @@ namespace codequery.App
         double? Sum(Expression<Func<A, B, double>> field);
         P Max<P>(Expression<Func<A, B, P>> clause);
         P Min<P>(Expression<Func<A, B, P>> clause);
+    }
+
+    public interface IAggregate<Key, A, B, C>
+    {
+        Key Value { get; set; }
+        int Count();
+        int CountDistinct();
+        int? Average(Expression<Func<A, B, C, int>> field);
+        double? Average(Expression<Func<A, B, C, double>> field);
+        int? Sum(Expression<Func<A, B, C, int>> field);
+        double? Sum(Expression<Func<A, B, C, double>> field);
+        P Max<P>(Expression<Func<A, B, C, P>> clause);
+        P Min<P>(Expression<Func<A, B, C, P>> clause);
     }
 }

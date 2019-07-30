@@ -89,7 +89,7 @@ namespace codequery.App
                 .Join(eauthor, b => b.AuthorId, h => h.Id, (b,a) => new {b,a})
                 .GroupBy(se => se.b.AuthorId)
                 .Select(g => g.Max(k => k.a.Id));
-
+                
                 // .GroupBy(g => g.AuthorId);
                 // .Select(f => f.)
 
@@ -99,7 +99,16 @@ namespace codequery.App
                 .Select(f => new {
                     Count = f.Count(),
                     Maxi = f.Max((b, a) => b.Name)
-                });
+                })
+                .Join(authors)
+                .Join(authors)
+                .Select((prev, a, a2) => new {
+                    CC = prev.Count,
+                    Name = a.Name
+                })
+                .Join(books)
+                .Join(authors)
+                .Select((a, b, c) => c.Name);
                 
                 
 
