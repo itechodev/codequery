@@ -1,10 +1,26 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using codequery.Drivers;
 using codequery.Expressions;
 using codequery.QuerySources;
 
 namespace codequery.App
 {
+    public class Author 
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    public class Book 
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public int AuthorId { get; set; }
+    }
+
+
     public class ScissorsEntry
     {
         public double Long { get; set; }
@@ -59,6 +75,39 @@ namespace codequery.App
         {
             IDatabaseDriver driver = new SQLLiteDatabaseDriver();
             Console.WriteLine(driver.GenerateSelect(query.Query));
+        }
+
+        public void SignatureOnly()
+        {
+            IQuerySource<Book> books = null;
+            IQuerySource<Author> authors = null;
+            
+            List<Book> ebook = null;
+            List<Author> eauthor = null;
+
+            ebook
+                .Join(eauthor, b => b.AuthorId, h => h.Id, (b,a) => new {b,a})
+                .GroupBy(se => se.b.AuthorId)
+                .Select(g => g.Max(k => k.a.Id));
+
+                // .GroupBy(g => g.AuthorId);
+                // .Select(f => f.)
+
+            var q = books
+                .Join(authors)
+                .GroupBy((b, a) => a.Id)
+                .Select(f => new {
+                    Count = f.Count(),
+                    Maxi = f.Max((b, a) => b.Name)
+                });
+                
+                
+
+                // .Select( (book, author) => new {
+                //     AuthorName = author.Name,
+                //     BookName = book.Name
+                // });
+            
         }
 
         public void Run()
