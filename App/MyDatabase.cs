@@ -79,11 +79,21 @@ namespace codequery.App
 
         public void SignatureOnly()
         {
+            
             IQuerySource<Book> books = null;
             IQuerySource<Author> authors = null;
-            
+
+            ITableSource<Book> table = null;
+            table.InsertInto(authors.Select(a => new Book 
+            {
+                Name = a.Name
+            }));
+
             List<Book> ebook = null;
             List<Author> eauthor = null;
+            
+            // Insert into books (book) (Select names from Author)
+            
 
             ebook
                 .Join(eauthor, b => b.AuthorId, h => h.Id, (b,a) => new {b,a})

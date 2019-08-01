@@ -28,6 +28,7 @@ namespace codequery.App
 
         IUpdateTable<T> Set<F>(Expression<Action<T>> field, Expression<Func<T, F>> value);
         T Insert(T data);
+        int InsertInto(IQuerySource<T> source);
         bool Delete<F>(Expression<Func<T, F>> clause);
     }
 
