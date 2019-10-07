@@ -8,9 +8,13 @@ namespace codequery.App
         IResultSource<A> SelectAll();
         IResultSource<F> Select<F>(Expression<Func<A, F>> fields);
         IQuerySource<A> Where(Expression<Func<A, bool>> predicate);
-        IQuerySource<A> Order(Expression<Action<A>> predicate);
         IAggregateSource<IAggregate<Key, A>> GroupBy<Key>(Expression<Func<A, Key>> groupBy);
         IJoinSource<A, R> Join<R>(IQuerySource<R> right);
+    }
+
+    public interface ISubQuerySource<T> : IQuerySource<T>
+    {
+
     }
 
     public interface IUpdateTable<T>
@@ -20,11 +24,9 @@ namespace codequery.App
         bool Update();
     }
 
-    public interface ITableSource<T>
+    public interface ITableSource<T> : IQuerySource<T>
     {
-        IResultSource<T> SelectAll();
-        IResultSource<F> Select<F>(Expression<Func<T, F>> fields);
-        IJoinSource<T, R> Join<R>(IQuerySource<R> right);
+        IQuerySource<T> OrderBy(Expression<Action<T>> predicate);
 
         IUpdateTable<T> Set<F>(Expression<Action<T>> field, Expression<Func<T, F>> value);
         T Insert(T data);

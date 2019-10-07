@@ -97,7 +97,7 @@ namespace codequery.QuerySources
     }
     public interface Aggregate<T, N>
     {
-        T Value { get; set; }
+        T Key { get; set; }
         int Count();
         int CountDistinct();
         int? Average(Expression<Func<N, int>> field);
