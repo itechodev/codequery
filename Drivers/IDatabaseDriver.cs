@@ -5,6 +5,6 @@ namespace codequery.Drivers
 {
     public interface IDatabaseDriver
     {
-        string GenerateSelect(SelectQuery query);
+        string GenerateSelect(SqlSelectQuery query);
     }
 }

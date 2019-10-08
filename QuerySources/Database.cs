@@ -41,10 +41,10 @@ namespace codequery.QuerySources
             var ret = new TableDefinition();
              // Need to cater for attributes columnName, StringLength etc.
             ret.Name = type.Name;
-            ret.FieldsAndProps = ReflectionHelper.GetFiedAndProps(type);
+            // ret.FieldsAndProps = ReflectionHelper.GetFiedAndProps(type);
             
-            ret.Columns = ret.FieldsAndProps
-                .Select(f => new ColumnDefinition(f.Name, ToSqlField(f.Type)))
+            ret.Columns = type.GetProperties()
+                .Select(f => new ColumnDefinition(f.Name, ToSqlField(f.PropertyType)))
                 .ToArray();
                 
             return ret;

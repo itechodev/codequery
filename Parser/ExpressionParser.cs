@@ -20,13 +20,13 @@ namespace codequery.Parser
     public class QuerySourceType
     {
         // s => 
-        public QuerySourceType(SelectQuery source, Type type, SourceType sourceType)
+        public QuerySourceType(SqlSelectQuery source, Type type, SourceType sourceType)
         {
             this.Source = source;
             this.Type = type;
             this.SourceType = sourceType;
         }
-        public SelectQuery Source { get; set; }
+        public SqlSelectQuery Source { get; set; }
         public Type Type { get; set; }
         public SourceType SourceType { get; set; }
     }

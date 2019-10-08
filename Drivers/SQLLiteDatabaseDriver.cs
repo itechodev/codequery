@@ -17,7 +17,7 @@ namespace codequery.Drivers
                 case SqlColumnExpression named:
                     sql.Add(GenerateNamed(named));
                     return;
-                case AggregateExpression aggregate:
+                case SqlAggregateExpression aggregate:
                     GenerateAggregate(sql, aggregate);
                     return;
                 case SqlFunctionExpression func:
@@ -26,7 +26,7 @@ namespace codequery.Drivers
                 case SqlMathExpression math:
                     GenerateMath(sql, math);
                     return;
-                case RowFunctionExpression rowFunc:
+                case SqlRowFunctionExpression rowFunc:
                     GenerateRowFunc(sql, rowFunc);
                     return;
                 case SqlCastExpression cast:
@@ -74,7 +74,7 @@ namespace codequery.Drivers
             throw new NotImplementedException();
         }
 
-        private string GenerateRowFunc(SqlGenerator sql, RowFunctionExpression rowFunc)
+        private string GenerateRowFunc(SqlGenerator sql, SqlRowFunctionExpression rowFunc)
         {
             switch (rowFunc.Function)
             {
@@ -149,7 +149,7 @@ namespace codequery.Drivers
             throw new NotImplementedException($"Could not generate function {function.ToString()}");
         }
 
-        private void GenerateAggregate(SqlGenerator sql, AggregateExpression aggregate)
+        private void GenerateAggregate(SqlGenerator sql, SqlAggregateExpression aggregate)
         {
             sql.Add(GenerateAggregateName(aggregate.Function));
             sql.Add("(");
@@ -210,7 +210,7 @@ namespace codequery.Drivers
             }
         }
         
-        private void GenereateSelectFields(SqlGenerator sql, SelectQuery query)
+        private void GenereateSelectFields(SqlGenerator sql, SqlSelectQuery query)
         {
             if (query.Fields == null)
             {
@@ -230,7 +230,7 @@ namespace codequery.Drivers
             });
         }
 
-        public string GenerateSelect(SelectQuery query)
+        public string GenerateSelect(SqlSelectQuery query)
         {
             SqlGenerator sql = new SqlGenerator();
             // If there is only 1 const selection

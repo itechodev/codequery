@@ -4,6 +4,5 @@ namespace codequery.QuerySources
     {
         public string Name { get; set; }
         public ColumnDefinition[] Columns { get; set; }
-        public FieldProp[] FieldsAndProps { get; internal set; }
     }
 }
