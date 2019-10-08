@@ -47,6 +47,24 @@ namespace codequery.Expressions
         {
             return FieldType.String;
         }
+
+        public SqlReferencedField FieldByName(string name)
+        {
+            return new SqlReferencedField
+            {
+                Source = this,
+                Column = Columns[0]
+            };
+        }
+
+        public SqlReferencedField FieldByIndex(int index)
+        {
+            return new SqlReferencedField
+            {
+                Source = this,
+                Column = Columns[index]
+            };
+        }
     }
 
 }

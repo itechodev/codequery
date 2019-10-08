@@ -14,6 +14,12 @@ namespace codequery.Expressions
         public string Name { get; }
     }
 
+    public class SqlReferencedField
+    {
+        public SqlQuerySource Source { get; set; }
+        public ColumnDefinition Column { get; set; }
+    }
+
     public enum FieldType
     {
         Int,
