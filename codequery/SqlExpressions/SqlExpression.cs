@@ -9,9 +9,9 @@ namespace codequery.SqlExpressions
             return new ConstSqlExpression(value);
         }
 
-        public static ColumnSqlExpression Column(ColumnDefinition definition)
+        public static ColumnSqlExpression Column(string name)
         {
-            return new ColumnSqlExpression(definition);
+            return new ColumnSqlExpression(name);
         }
 
         public static AliasSqlExpression Alias(SqlExpression body, string name)
@@ -29,16 +29,40 @@ namespace codequery.SqlExpressions
             return new VariableSqlExpression(name);
         }
 
-        public static MathSqlExpression Boolean(SqlExpression left, SqlExpression right, SqlMathOperator op)
+        public static MathSqlExpression Math(SqlExpression left, SqlExpression right, SqlMathOperator op)
         {
             return new MathSqlExpression(left, right, op);
         }
+
+        public static AggregateSqlExpression Aggregate(SqlAggregateType type, params SqlExpression[] parameters)
+        {
+            return new AggregateSqlExpression(type, parameters);
+        }
+
+        public static FunctionSqlExpression Function(SqlFunctionType type, params SqlExpression[] parameters)
+        {
+            return new FunctionSqlExpression(type, parameters);
+        }
+
+        public static AllSqlExpression All()
+        {
+            return new AllSqlExpression();
+        }
+
+        public static ConstSourceSqlExpression ConstSource()
+        {
+            return new ConstSourceSqlExpression();
+        }
+
+        public static TableSourceSqlExpression TableSource(string name)
+        {
+            return new TableSourceSqlExpression(name);
+        }
+
+        public static QuerySourceSqlExpression QuerySource()
+        {
+            return new QuerySourceSqlExpression();
+        }
+
     }
-
-
-
-
-
-    
-
 }

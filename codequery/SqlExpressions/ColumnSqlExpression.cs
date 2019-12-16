@@ -4,11 +4,17 @@ namespace codequery.SqlExpressions
 {
     public class ColumnSqlExpression : SqlExpression
     {
-        public ColumnDefinition Definition { get; set; }
+        //public ColumnDefinition Definition { get; set; }
+        public string Name { get; }
+        
+        // public ColumnSqlExpression(ColumnDefinition definition)
+        // {
+        //     Definition = definition;
+        // }
 
-        public ColumnSqlExpression(ColumnDefinition definition)
+        public ColumnSqlExpression(string name)
         {
-            Definition = definition;
+             Name = name;
         }
     }
 }
