@@ -4,18 +4,25 @@ namespace codequery.SqlExpressions
 {
     public abstract class SqlExpression
     {
+        public static ConstSqlExpression Const(object value)
+        {
+            return new ConstSqlExpression(value);
+        }
 
-    }
+        public static ColumnSqlExpression Column(ColumnDefinition definition)
+        {
+            return new ColumnSqlExpression(definition);
+        }
 
-    public class ConstSqlExpression
-    {
-        public ColumnType Type { get; set; }
-        public object Value { get; set; }
+        public static AliasSqlExpression Alias(SqlExpression body, string name)
+        {
+            return new AliasSqlExpression(body, name);
+        }
 
-        public ConstSqlExpression(object value, ColumnType? type = null)
-        {            
-            Value = value;
-            Type = type.HasValue ? type.Value : ColumnDefinition.FromType(value.GetType());
+        public static BooleanSqlExpression Boolean(SqlExpression left, SqlExpression right, SqlBooleanOperator op)
+        {
+            return new BooleanSqlExpression(left, right, op);
         }
     }
+
 }
