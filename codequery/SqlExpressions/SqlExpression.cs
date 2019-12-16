@@ -23,6 +23,22 @@ namespace codequery.SqlExpressions
         {
             return new BooleanSqlExpression(left, right, op);
         }
+
+        public static VariableSqlExpression Variable(string name)
+        {
+            return new VariableSqlExpression(name);
+        }
+
+        public static MathSqlExpression Boolean(SqlExpression left, SqlExpression right, SqlMathOperator op)
+        {
+            return new MathSqlExpression(left, right, op);
+        }
     }
+
+
+
+
+
+    
 
 }

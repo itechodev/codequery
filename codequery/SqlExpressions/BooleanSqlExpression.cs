@@ -5,13 +5,18 @@ namespace codequery.SqlExpressions
     {
         And,
         Or,
-        Xor,
         Equal,
+        NotEqual,
         GreaterThen,
+        NotGreaterThen,
         LessThen,
+        NotLessThen,
         GreateEqualThan,
+        NotGreateEqualThan,
         LessEqualThan,
-        Like
+        NotLessEqualThan,
+        Like,
+        NotLike
     }
     
     public class BooleanSqlExpression : SqlExpression
