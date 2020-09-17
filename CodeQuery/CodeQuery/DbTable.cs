@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using CodeQuery.Interfaces;
 
 namespace CodeQuery
 {
@@ -10,7 +11,7 @@ namespace CodeQuery
 
         public DbTable(SqlQuerySelect query = null)
         {
-            _query = new SqlQuerySelect() ?? query;
+            _query = query ?? new SqlQuerySelect();
         }
 
         public IDbJoinable2<T, T1> Join<T1>(JoinType joinType, IDbQueryable<T1> @join, Expression<Func<T, T1, bool>> condition = null)
