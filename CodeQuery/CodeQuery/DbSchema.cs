@@ -2,13 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Metadata.Ecma335;
 using CodeQuery.Definitions;
 using CodeQuery.Interfaces;
 
 namespace CodeQuery
 {
-    public abstract class DatabaseContext
+    public abstract class DbSchema
     {
         private static Dictionary<Type, SqlTableDefinition> _definitions;
         
@@ -29,7 +28,7 @@ namespace CodeQuery
             return null;
         }
 
-        protected void Initialize()
+        public void PopulateDefinitions()
         {
             // share cache between multiple instances of DatabaseContext
             if (_definitions != null)
