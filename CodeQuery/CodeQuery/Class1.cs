@@ -11,6 +11,15 @@ namespace CodeQuery
         Descending
     }
 
+    public enum JoinType
+    {
+        Left,
+        Right,
+        Inner,
+        FullOuter,
+        Cross
+    }
+
     public interface IDbAggregate<TSource>
     {
         int Count(Expression<Func<TSource, TSource>> field);
@@ -18,7 +27,7 @@ namespace CodeQuery
         double Average();
         TSource Key { get; }
     }
-    
+
     public interface IDbJoinable4<TA, TB, TC, TD>
     {
         IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<TA, TB, TC, TD, TSelect>> fields);
@@ -55,7 +64,7 @@ namespace CodeQuery
     public interface IDbQueryable<TSource>
     {
         // Joins
-        IDbJoinable2<TSource, T> Join<T>(IDbQueryable<T> join,  Expression<Func<TSource, T, bool>> condition);
+        IDbJoinable2<TSource, T> Join<T>(JoinType joinType, IDbQueryable<T> join,  Expression<Func<TSource, T, bool>> condition = null);
         // Aggregation
         IDbQueryable<IDbAggregate<T>> GroupBy<T>(Expression<Func<TSource, T>> order);
         // Select fields
@@ -119,12 +128,12 @@ namespace CodeQuery
         public DateTime Added { get; set; }
         public int Count { get; set; }
     }
-    
+
     public class TestDb : DatabaseContext
     {
-        public IDbTable<Enquiries> Enquiries { get; set;  }
-        public IDbTable<User> Users { get; set; }
-        public IDbTable<TopUp> Topups { get; set;  }
+        public DbTable<Enquiries> Enquiries { get; set;  }
+        public DbTable<User> Users { get; set; }
+        public DbTable<TopUp> Topups { get; set;  }
 
         public void Query()
         {
@@ -135,8 +144,8 @@ namespace CodeQuery
                     UserId = e.Key,
                     Used = e.Count(null)
                 })
-                .Join(Topups, (e, t) => e.Used == t.Count)
-                .Join(Users, (e,_, u) => e.UserId == u.Id)
+                .Join(JoinType.Inner, Topups, (e, t) => e.Used == t.Count)
+                .Join(Users, (e, _, u) => e.UserId == u.Id)
                 .Select((e, t, u) => new
                 {
                     Used = e.Used + t.Count,
@@ -145,6 +154,32 @@ namespace CodeQuery
         }
         
     }
+
+    public abstract class SqlSource
+    {
+        
+    }
+    
+    public class SqlNoSource : SqlSource
+    {
+        
+    }
+    
+    public class SqlTable : SqlSource
+    {
+        
+    }
+
+    public class SqlQuerySelect: SqlSource
+    {
+        public string[] Fields { get; set; }
+        public SqlSource Source { get; set; }
+        public string GroupBy { get; set; }
+        public string Where { get; set; }
+        public string Join { get; set; }
+    }
+    
+    
     
     
 }
