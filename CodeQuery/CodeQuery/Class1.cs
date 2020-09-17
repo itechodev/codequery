@@ -26,7 +26,7 @@ namespace CodeQuery
         public int Count { get; set; }
     }
 
-    public class TestDb : DatabaseContext
+    public class TestDb : DbSchema
     {
         public DbTable<Enquiries> Enquiries { get; set;  }
         public DbTable<User> Users { get; set; }
@@ -34,12 +34,20 @@ namespace CodeQuery
 
         public void Query()
         {
+            Topups
+                .GroupBy(t => t.UserId)
+                .Select(t => new
+                {
+                    UserId = t.Key,
+                    Total = t.Sum(f => f.Added)
+                });
+            
             Enquiries
                 .GroupBy(e => e.UserId)
                 .Select(e => new
                 {
                     UserId = e.Key,
-                    Used = e.Count(null)
+                    Used = e.Count(null),
                 })
                 .Join(JoinType.Inner, Topups, (e, t) => e.Used == t.Count)
                 .Join(Users, (e, _, u) => e.UserId == u.Id)
