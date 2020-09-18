@@ -8,7 +8,7 @@ namespace CodeQuery.Interfaces
         // Joins
         IDbJoinable2<TSource, T> Join<T>(JoinType joinType, IDbQueryable<T> join,  Expression<Func<TSource, T, bool>> condition = null);
         // Aggregation
-        IDbQueryable<IDbAggregate<T>> GroupBy<T>(Expression<Func<TSource, T>> order);
+        IDbQueryable<IDbAggregate<TKey, TSource>> GroupBy<TKey>(Expression<Func<TSource, TKey>> order);
         // Select fields
         IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<TSource, TSelect>> fields);
         IDbQueryFetchable<TSource> SelectAll();

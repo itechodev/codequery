@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using CodeQuery.Interfaces;
 
 namespace CodeQuery
 {
@@ -10,7 +11,7 @@ namespace CodeQuery
 
         public DbTable(SqlQuerySelect query = null)
         {
-            _query = new SqlQuerySelect() ?? query;
+            _query = query ?? new SqlQuerySelect();
         }
 
         public IDbJoinable2<T, T1> Join<T1>(JoinType joinType, IDbQueryable<T1> @join, Expression<Func<T, T1, bool>> condition = null)
@@ -18,15 +19,21 @@ namespace CodeQuery
             throw new NotImplementedException();
         }
 
-        public IDbQueryable<IDbAggregate<T1>> GroupBy<T1>(Expression<Func<T, T1>> order)
+        public IDbQueryable<IDbAggregate<TKey, T>> GroupBy<TKey>(Expression<Func<T, TKey>> order)
         {
             // add group by in SqlQuerySelect
             _query.GroupBy = "GroupBy";
-            return new DbTable<IDbAggregate<T1>>(_query);
+            return new DbTable<IDbAggregate<TKey, T>>(_query);
         }
 
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
+            // .Select(e => new
+            // {
+            //     UserId = e.Key,
+            //     Used = e.Count(null)
+            // })
+            
             // Check for aggregates
             // add to list
 
