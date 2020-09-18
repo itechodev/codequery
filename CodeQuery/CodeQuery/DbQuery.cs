@@ -25,6 +25,36 @@ namespace CodeQuery
             throw new NotImplementedException();
         }
 
+        public IDbQueryable<IDbAggregate<TKey, T>> GroupBy<TKey>(Expression<Func<T, TKey>> order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable<T> Order(Expression<Func<T, object>> order, OrderBy orderBy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable<T> Where(Expression<Func<T, bool>> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryFetchable<T> Union(IDbQueryable<T> other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryFetchable<T> UnionAll(IDbQueryable<T> other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryFetchable<T> SelectAll()
+        {
+            throw new NotImplementedException();
+        }
+
         public int Delete(Expression<Func<T, bool>> predicate)
         {
             throw new NotImplementedException();

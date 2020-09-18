@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using CodeQuery.Interfaces;
 
 namespace CodeQuery
@@ -35,24 +37,29 @@ namespace CodeQuery
 
         public void Query()
         {
-            var r = new TopUp();
-            
-            Topups.Select(t => t.Max(f => f.Added));
-            
+            Topups
+                .Join(JoinType.Inner, Users)
+                .Where((topup, user) => topup.Id < 100 && user.Id > 200)
+                .GroupBy((up, user) => user.Id)
+                .Select(a => new
+                {
+                    UserId = a.Key,
+                    MinId = a.Min((t, _) => t.Id),
+                    MaxId = a.Max((t, _) => t.Id),
+                    Count = a.Sum((t, _) => t.Count),
+                });
 
-            // Topups
-            //     .Join(JoinType.Inner, Users)
-            //     //.Where(t => t.Count > 1)
-            //     .GroupBy((t, u) => t.UserId)
-            //     .Select(t => new
-            //     {
-            //         UserId = t.Key,
-            //         Total = t.Sum(g => g.Item1.Count)
-            //         // Total = t.Sum((t, u) => t.Added),
-            //         // Average = t.Average(f => f.Count),
-            //         // Min = t.Min(f => f.Added),
-            //         // Max = t.Max(f => f.Added)
-            //     });
+            // .GroupBy((t, u) => t.UserId)
+            // .Select(t => new
+            // {
+            //     UserId = t.Key,
+            //     Total = t.Sum(g => g.Item1.Count)
+            //     // Total = t.Sum((t, u) => t.Added),
+            //     // Average = t.Average(f => f.Count),
+            //     // Min = t.Min(f => f.Added),
+            //     // Max = t.Max(f => f.Added)
+            // });
+
             //
             // Enquiries
             //     .GroupBy(e => e.UserId)

@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 
 namespace CodeQuery.Interfaces
 {
+    // Can select a aggregation function without a group by clause
+    // ie. Select max("id") from Table
     public static class DbTableExtensions
     {
         public static int Count<T>(this T self, Expression<Func<T, object>> field) where T: DbTable
