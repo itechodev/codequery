@@ -13,9 +13,13 @@ namespace CodeQuery
 
         private SqlTableDefinition TableDefFromType(Type t)
         {
+            if (_definitions == null)
+            {
+                throw new DbQueryBuilderException("Database schema not initialized. Did you forget to invoke the initialize method?");
+            }
             if (!_definitions.ContainsKey(t))
             {
-                throw new ArgumentException($"Cannot resolve type '{t.Name}' to a SQL table because it does not exists. Did you forget add a migration?");
+                throw new DbQueryBuilderException($"Cannot resolve type '{t.Name}' to a SQL table because it does not exists. Did you forget add a migration?");
             }
             return _definitions[t];
         }
@@ -30,20 +34,8 @@ namespace CodeQuery
         {
             return null;
         }
-
-        // extract the IDTable type if derived from generic IDbTable<T> 
-        private static Type GetTableType(Type type)
-        {
-            var interfaces = type.GetInterfaces();
-            if (interfaces?.FirstOrDefault() == typeof(IDbTable<>))
-            {
-                return type.GenericTypeArguments.FirstOrDefault();
-            }
-
-            return null;
-        }
-
-        public void PopulateDefinitions()
+        
+        public void Initialize()
         {
             // share cache between multiple instances of DatabaseContext
             if (_definitions != null)
@@ -51,21 +43,16 @@ namespace CodeQuery
                 return;
             }
             
-            // Read all DbTables from this instance and convert this into table definitions
+            // Read all DbTables from this assembly and convert into table definitions
             _definitions = new Dictionary<Type, SqlTableDefinition>();
-            foreach (var prop in GetType().GetProperties(BindingFlags.Public))
+            var tables = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => !t.IsInterface && typeof(DbTable).IsAssignableFrom(t));
+                
+            foreach (var table in tables)
             {
-                if (!prop.CanRead)
-                {
-                    continue;
-                }
-
-                // extract the first generic type from IDbTable<..>
-                var tableType = GetTableType(prop.PropertyType);
-                if (tableType != null)
-                {
-                    _definitions[tableType] = new SqlTableDefinition(tableType);
-                }
+                _definitions[table] = new SqlTableDefinition(table);
+                
             }
         }
     }

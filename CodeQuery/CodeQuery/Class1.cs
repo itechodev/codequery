@@ -32,10 +32,6 @@ namespace CodeQuery
     {
         public void Query()
         {
-            var res = From<TopUp>()
-                .Select(t => new {t.Added, t.Count})
-                .FetchMultiple();
-
             var results = From<TopUp>()
                 .Join<User>(JoinType.Inner)
                 .Where((up, user) => up.Id < 100 && user.Id > 200)
@@ -50,6 +46,4 @@ namespace CodeQuery
         }
         
     }
-
-   
 }

@@ -24,7 +24,7 @@ namespace CodeQuery.Definitions
             var tableName = customName?.Name ?? t.Name;
             
             Columns = new List<SqlColumnDefinition>();
-            foreach (var prop in t.GetProperties(BindingFlags.Public))
+            foreach (var prop in t.GetProperties())
             {
                 if (prop.CanRead && prop.CanWrite)
                 {
