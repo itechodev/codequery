@@ -34,28 +34,35 @@ namespace CodeQuery
 
         public void Query()
         {
-            Topups
-                .GroupBy(t => t.UserId)
-                .Select(t => new
-                {
-                    UserId = t.Key,
-                    Total = t.Sum(f => f.Added)
-                });
-            
-            Enquiries
-                .GroupBy(e => e.UserId)
-                .Select(e => new
-                {
-                    UserId = e.Key,
-                    Used = e.Count(null),
-                })
-                .Join(JoinType.Inner, Topups, (e, t) => e.Used == t.Count)
-                .Join(Users, (e, _, u) => e.UserId == u.Id)
-                .Select((e, t, u) => new
-                {
-                    Used = e.Used + t.Count,
-                    NAme = u.Name
-                });
+            // Topups.Select(t => t.)
+            // Topups
+            //     .Join(JoinType.Inner, Users)
+            //     //.Where(t => t.Count > 1)
+            //     .GroupBy((t, u) => t.UserId)
+            //     .Select(t => new
+            //     {
+            //         UserId = t.Key,
+            //         Total = t.Sum(g => g.Item1.Count)
+            //         // Total = t.Sum((t, u) => t.Added),
+            //         // Average = t.Average(f => f.Count),
+            //         // Min = t.Min(f => f.Added),
+            //         // Max = t.Max(f => f.Added)
+            //     });
+            //
+            // Enquiries
+            //     .GroupBy(e => e.UserId)
+            //     .Select(e => new
+            //     {
+            //         UserId = e.Key,
+            //         Used = e.Count(null),
+            //     })
+            //     .Join(JoinType.Inner, Topups, (e, t) => e.Used == t.Count)
+            //     .Join(Users, (e, _, u) => e.UserId == u.Id)
+            //     .Select((e, t, u) => new
+            //     {
+            //         Used = e.Used + t.Count,
+            //         NAme = u.Name
+            //     });
         }
         
     }

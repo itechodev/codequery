@@ -5,20 +5,36 @@ namespace CodeQuery.Interfaces
 {
     public interface IDbQueryable<TSource>
     {
-        // Joins
-        IDbJoinable2<TSource, T> Join<T>(JoinType joinType, IDbQueryable<T> join,  Expression<Func<TSource, T, bool>> condition = null);
-        // Aggregation
-        IDbQueryable<IDbAggregate<TKey, TSource>> GroupBy<TKey>(Expression<Func<TSource, TKey>> order);
-        // Select fields
         IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<TSource, TSelect>> fields);
-        IDbQueryFetchable<TSource> SelectAll();
-        // Order
-        IDbQueryable<TSource> Order(Expression<Func<TSource, TSource>> order, OrderBy orderBy);
-        // Where
-        IDbQueryable<TSource> Where(Expression<Func<TSource, bool>> predicate);
+
+        IDbQueryable2<TSource, TSource2> Join<TSource2>(JoinType joinType, IDbQueryable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
+
+        // IDbQueryable<IDbAggregate<TKey, TSource>> GroupBy<TKey>(Expression<Func<TSource, TKey>> order);
+
+        // IDbAggregate<TKey, TSource> GroupBy<TKey>(Expression<Func<TSource, TKey>> order);
+        //
+        // IDbQueryable<TSource> Order(Expression<Func<TSource, TSource>> order, OrderBy orderBy);
+        // IDbQueryable<TSource> Where(Expression<Func<TSource, bool>> predicate);
+        // IDbQueryFetchable<TSource> Union(IDbQueryable<TSource> other);
+        // IDbQueryFetchable<TSource> UnionAll(IDbQueryable<TSource> other);
+        //
+        // IDbQueryFetchable<TSource> SelectAll();
+    }
+
+    public interface IDbQueryable2<TSource, TSource2>
+    {
+        // IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<TSource, TSource2, TSelect>> fields);
         
-        // Unions
-        IDbQueryFetchable<TSource> Union(IDbQueryable<TSource> other);
-        IDbQueryFetchable<TSource> UnionAll(IDbQueryable<TSource> other);
+        // IDbJoinable3<TSource, TSource2, TSource3> Join<TSource3>(JoinType joinType, IDbQueryable<TSource3> join,  Expression<Func<TSource, TSource2, bool>> condition = null);
+        // IDbQueryable<IDbAggregate<TKey, TSource>> GroupBy<TKey>(Expression<Func<TSource, TKey>> order);
+        // IDbQueryable<TSource> Order(Expression<Func<TSource, TSource>> order, OrderBy orderBy);
+        // IDbQueryable<TSource> Where(Expression<Func<TSource, bool>> predicate);
+        // IDbQueryFetchable<TSource> Union(IDbQueryable<TSource> other);
+        // IDbQueryFetchable<TSource> UnionAll(IDbQueryable<TSource> other);
+    }
+    
+    public interface IDbQueryable3<TSource, TSource2, TSource3>
+    {
+        // IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<TSource, TSource2, TSource3, TSelect>> fields);
     }
 }
