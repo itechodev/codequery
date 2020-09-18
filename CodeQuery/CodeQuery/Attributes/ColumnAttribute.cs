@@ -19,8 +19,9 @@ namespace CodeQuery.Attributes
         }
 
         public string Name { get; set; }
-        public SqlColumnType? ResolvedType { get; set; }
-        public int? ResolvedLength { get; set;  }
+        
+        internal SqlColumnType? ResolvedType { get; set; }
+        internal int? ResolvedLength { get; set;  }
         
     }
 }

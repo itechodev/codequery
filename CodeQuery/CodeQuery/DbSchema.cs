@@ -10,6 +10,21 @@ namespace CodeQuery
     public abstract class DbSchema
     {
         private static Dictionary<Type, SqlTableDefinition> _definitions;
+
+        private SqlTableDefinition TableDefFromType(Type t)
+        {
+            if (!_definitions.ContainsKey(t))
+            {
+                throw new ArgumentException($"Cannot resolve type '{t.Name}' to a SQL table because it does not exists. Did you forget add a migration?");
+            }
+            return _definitions[t];
+        }
+        
+        public IDbQueryable<T> From<T>() where T : DbTable
+        {
+            var source = new SqlTableSource(TableDefFromType(typeof(T)));
+            return new DbQuery<T>(this, new SqlQuerySelect(source));
+        }
         
         public IDbQueryable<TFields> Const<TFields>(Func<TFields> fields)
         {

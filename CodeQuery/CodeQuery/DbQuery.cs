@@ -5,22 +5,28 @@ using CodeQuery.Interfaces;
 
 namespace CodeQuery
 {
-    public class DbQuery<T> : IDbTable<T>, IDbSource
+    public class DbQuery<T> : IDbTable<T>
     {
         private SqlQuerySelect _query;
 
-        public DbQuery(SqlQuerySelect query = null)
+        public DbQuery(DbSchema schema, SqlQuerySelect query)
         {
-            _query = query ?? new SqlQuerySelect();
+            _query = query;
         }
-
-
+        
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
+            // select expressions from sources
+            
             throw new NotImplementedException();
         }
 
         public IDbQueryable2<T, TSource2> Join<TSource2>(JoinType joinType, IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable2<T, TSource2> Join<TSource2>(JoinType joinType, Expression<Func<T, TSource2, bool>> condition = null) where TSource2 : IDbSource
         {
             throw new NotImplementedException();
         }
