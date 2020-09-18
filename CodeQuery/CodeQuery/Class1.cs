@@ -28,9 +28,9 @@ namespace CodeQuery
 
     public class TestDb : DbSchema
     {
-        public DbTable<Enquiries> Enquiries { get; set;  }
-        public DbTable<User> Users { get; set; }
-        public DbTable<TopUp> Topups { get; set;  }
+        public DbQuery<Enquiries> Enquiries { get; set;  }
+        public DbQuery<User> Users { get; set; }
+        public DbQuery<TopUp> Topups { get; set;  }
 
         public void Query()
         {

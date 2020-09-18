@@ -5,11 +5,11 @@ using CodeQuery.Interfaces;
 
 namespace CodeQuery
 {
-    public class DbTable<T> : IDbTable<T>, IDbSource
+    public class DbQuery<T> : IDbTable<T>, IDbSource
     {
         private SqlQuerySelect _query;
 
-        public DbTable(SqlQuerySelect query = null)
+        public DbQuery(SqlQuerySelect query = null)
         {
             _query = query ?? new SqlQuerySelect();
         }
