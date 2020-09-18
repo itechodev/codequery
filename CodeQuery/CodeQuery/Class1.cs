@@ -5,20 +5,20 @@ namespace CodeQuery
 {
     // ---------------------------
 
-    public class Enquiries
+    public class Enquiries: DbTable
     {
         public int Id { get; set; }
         public int UserId { get; set;  }
         
     }
 
-    public class User
+    public class User : DbTable
     {
         public int Id { get; set;  }
         public string Name { get; set; }
     }
 
-    public class TopUp
+    public class TopUp : DbTable
     {
         public int Id { get; set; }
         public int UserId { get; set;  }
@@ -26,6 +26,7 @@ namespace CodeQuery
         public int Count { get; set; }
     }
 
+   
     public class TestDb : DbSchema
     {
         public DbQuery<Enquiries> Enquiries { get; set;  }
@@ -34,7 +35,11 @@ namespace CodeQuery
 
         public void Query()
         {
-            // Topups.Select(t => t.)
+            var r = new TopUp();
+            
+            Topups.Select(t => t.Max(f => f.Added));
+            
+
             // Topups
             //     .Join(JoinType.Inner, Users)
             //     //.Where(t => t.Count > 1)
