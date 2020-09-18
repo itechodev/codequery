@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using CodeQuery.Attributes;
 
 namespace CodeQuery.Definitions
 {
@@ -19,7 +20,7 @@ namespace CodeQuery.Definitions
 
         public SqlTableDefinition(Type t)
         {
-            var customName = t.GetCustomAttribute<Table>();
+            var customName = t.GetCustomAttribute<TableAttribute>();
             var tableName = customName?.Name ?? t.Name;
             
             Columns = new List<SqlColumnDefinition>();
@@ -32,13 +33,18 @@ namespace CodeQuery.Definitions
             }
         }
 
-        private static SqlColumnDefinition ToSqlColumn(PropertyInfo info)
+        private SqlColumnDefinition ToSqlColumn(PropertyInfo info)
         {
             // override any if type is overwrote
-            var colAttr = info.GetCustomAttribute<Column>();
+            var colAttr = info.GetCustomAttribute<ColumnAttribute>();
             var type = colAttr?.ResolvedType ?? InferType(info.PropertyType);
-            
-            return null;
+
+            var colDef = new SqlColumnDefinition(this, colAttr?.Name ?? info.Name, type);
+            // colDef.SetFlags();
+            // colDef.SetPrecision();
+            // colDef.SetForeignKey();
+
+            return colDef;
         }
 
         private static SqlColumnType InferType(Type type)
