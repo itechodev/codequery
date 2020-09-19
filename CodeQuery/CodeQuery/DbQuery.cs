@@ -16,9 +16,21 @@ namespace CodeQuery
         
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
-            // select expressions from sources
-            // t => new {t.Added, t.Count}
+            // Simple access
+            //     t => t.Column
+            // Use of aggregates
+            //     t => t.Max(f => f.Column)
+            // Binary operations
+            //     t => t.Column + t.Column2
+            // Math, String and DateTime functions
+            //    t => t.String.Substr(10) 
+            
+            // Multi column access
+            //     t => new { exp1, NameField3 = exp2 }
+            
             ExpressionPrinter.Print(fields);
+            
+            
 
             throw new NotImplementedException();
         }
