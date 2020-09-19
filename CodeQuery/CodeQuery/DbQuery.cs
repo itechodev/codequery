@@ -17,7 +17,9 @@ namespace CodeQuery
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
             // select expressions from sources
-            
+            // t => new {t.Added, t.Count}
+            ExpressionPrinter.Print(fields);
+
             throw new NotImplementedException();
         }
 
