@@ -7,7 +7,7 @@ namespace CodeQuery
     {
         private static void Log(string message, int indent)
         {
-            Console.WriteLine(new string(' ', indent) + message);
+            Console.WriteLine(new string(' ', indent * 4) + message);
         }
 
         public static void Print(Expression exp, int indent = 0)
@@ -29,7 +29,7 @@ namespace CodeQuery
                     break;
 
                 case ConstantExpression constant:
-                    Log("Constant:", indent);
+                    Log($"Constant: {constant.Value}", indent);
                     break;
 
                 case DebugInfoExpression debugInfo:
@@ -77,8 +77,11 @@ namespace CodeQuery
                     Log("Loop:", indent);
                     break;
                 case MemberExpression member:
-                    Log($"Member {member.Member.Name} {member.Member.ReflectedType}", indent);
-                    Print(member.Expression, indent + 1);
+                    Log($"Member: {member.Member.Name}, type: {member.Member.ReflectedType}", indent);
+                    if (member.Expression != null)
+                    {
+                        Print(member.Expression, indent + 1);
+                    }
                     break;
                 case MemberInitExpression memberInit:
                     Log("MemberInit:", indent);
