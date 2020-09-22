@@ -5,7 +5,7 @@ namespace CodeQuery.SqlExpressions
     // Reference a column from a table
     // Select [table.ColumnName] 
 
-    public class SqlColumnExpression : ISqlExpression
+    public class SqlColumnExpression : SqlExpression
     {
         public SqlColumnDefinition Definition { get; }
 

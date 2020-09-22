@@ -1,6 +1,6 @@
 namespace CodeQuery.SqlExpressions
 {
-    public interface ISqlExpression
+    public abstract class SqlExpression
     {
         
     }

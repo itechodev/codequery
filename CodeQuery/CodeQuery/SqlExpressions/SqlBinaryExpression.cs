@@ -1,12 +1,12 @@
 namespace CodeQuery.SqlExpressions
 {
-    public class SqlBinaryExpression
+    public class SqlBinaryExpression : SqlExpression
     {
-        public ISqlExpression Left { get;  }
-        public ISqlExpression Right { get;  }
+        public SqlExpression Left { get;  }
+        public SqlExpression Right { get;  }
         public SqlBinaryOperator Operator { get; set; }
 
-        public SqlBinaryExpression(ISqlExpression left, ISqlExpression right, SqlBinaryOperator @operator)
+        public SqlBinaryExpression(SqlExpression left, SqlExpression right, SqlBinaryOperator @operator)
         {
             Left = left;
             Right = right;

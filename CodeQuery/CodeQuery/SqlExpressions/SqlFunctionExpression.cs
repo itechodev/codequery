@@ -1,23 +1,16 @@
 namespace CodeQuery.SqlExpressions
 {
-    public enum SqlFunctionType
-    {
-        // String
-        Concat,
-        Left, 
-        Length,
-        Right,
-        
-        // DateTime
-        CurrentDate,
-        CurrentTime,
-        CurrentTimeStamp
-    }
-    
     // all math, string, int and date functions
     // ie. abs, ceil, exp, floor, ln, log, mod, substring, trim etc.
-    public class SqlFunctionExpression
+    public class SqlFunctionExpression : SqlExpression
     {
-        // DateTime.Now
+        public SqlFunctionType Type { get; }
+        public SqlExpression[] Arguments { get; }
+
+        public SqlFunctionExpression(SqlFunctionType type, SqlExpression[] arguments)
+        {
+            Type = type;
+            Arguments = arguments;
+        }
     }
 }

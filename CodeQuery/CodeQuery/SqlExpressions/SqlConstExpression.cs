@@ -2,7 +2,7 @@ using CodeQuery.Definitions;
 
 namespace CodeQuery.SqlExpressions
 {
-    public class SqlConstExpression
+    public class SqlConstExpression : SqlExpression
     {
         public object Value { get; }
         public SqlColumnType Type { get;  }

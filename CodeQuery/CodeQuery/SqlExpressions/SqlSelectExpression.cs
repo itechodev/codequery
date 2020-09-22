@@ -1,12 +1,12 @@
 namespace CodeQuery.SqlExpressions
 {
-    public class SqlSelectExpression
+    public class SqlSelectExpression : SqlExpression
     {
-        public ISqlExpression Body { get; }
+        public SqlExpression Body { get; }
         public int Order { get; }
         public string Alias { get; }
 
-        public SqlSelectExpression(ISqlExpression body, int order, string alias = null)
+        public SqlSelectExpression(SqlExpression body, int order, string alias = null)
         {
             Body = body;
             Order = order;
