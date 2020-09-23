@@ -7,14 +7,14 @@ namespace CodeQuery.Translators
 {
     internal class SqlStringMethodTranslator : ISqlMethodTranslator
     {
-        public bool ForMethod(MethodInfo info)
+        public bool ShouldRun(MethodCallExpression info)
         {
-            return info.ReflectedType == typeof(string);
+            return info.Method.ReflectedType == typeof(string);
         }
 
-        public SqlExpression Parse(MethodInfo info, SqlExpression body, MethodCallExpression method, Func<Expression, SqlExpression> resolver)
+        public SqlExpression Parse(MethodCallExpression method, SqlExpression body, Func<Expression, SqlExpression> resolver)
         {
-            switch (info.Name)
+            switch (method.Method.Name)
             {
                 case nameof(string.Trim):
                     // trim does not have any arguments

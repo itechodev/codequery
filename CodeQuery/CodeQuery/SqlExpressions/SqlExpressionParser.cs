@@ -11,14 +11,22 @@ namespace CodeQuery.SqlExpressions
     public static class SqlExpressionParser
     {
 
+        // MethodTranslators for instance methods and
+        // MemberTranslators for instance-less (static) methods
         private static readonly List<ISqlMethodTranslator> MethodTranslators;
+        private static readonly List<ISqlMemberTranslator> MemberTranslators;
 
         static SqlExpressionParser()
         {
-            MethodTranslators = new List<ISqlMethodTranslator>()
+            MethodTranslators = new List<ISqlMethodTranslator>
             {
                 new SqlStringMethodTranslator(),
                 new SqlDateTimeMethodTranslator()
+            };
+
+            MemberTranslators = new List<ISqlMemberTranslator>
+            {
+                new SqlDateTimeMemberTranslator()
             };
         }
 
@@ -97,10 +105,10 @@ namespace CodeQuery.SqlExpressions
             // Run through translators
             foreach (var translator in MethodTranslators)
             {
-                if (!translator.ForMethod(call.Method)) continue;
+                if (!translator.ShouldRun(call)) continue;
                 
                 var body = Parse(call.Object, sources);
-                var ret = translator.Parse(call.Method, body, call, expression => Parse(expression, sources));
+                var ret = translator.Parse(call, body, expression => Parse(expression, sources));
                 if (ret != null)
                 {
                     return ret;
@@ -122,26 +130,16 @@ namespace CodeQuery.SqlExpressions
                     $"Could not translate {member.Expression} to a SQL expression. Expression type is of {member.NodeType}.");
             }
             
-            // Date functions
-            if (member.Member.ReflectedType == typeof(System.DateTime))
+            // Run through translators
+            foreach (var translator in MemberTranslators)
             {
-                switch (member.Member.Name)
-                {
-                    case "Now":
-                        return new SqlFunctionExpression(SqlFunctionType.CurrentTimeStamp, null);
-                }
-            }
+                if (!translator.ShouldRun(member)) continue;
 
-            // Static Math functions
-            if (member.Member.ReflectedType == typeof(System.Math))
-            {
-                
-            }
-            
-            // Static string functions like String.IsNullOrEmpty
-            if (member.Member.ReflectedType == typeof(string))
-            {
-                
+                var ret = translator.Parse(member, expression => Parse(expression, sources));
+                if (ret != null)
+                {
+                    return ret;
+                }
             }
             
             // else it is a field (column)
