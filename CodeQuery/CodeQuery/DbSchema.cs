@@ -26,7 +26,7 @@ namespace CodeQuery
         
         public IDbQueryable<T> From<T>() where T : DbTable
         {
-            return new DbQuery<T>(this, new SqlQuerySelect(TableDefFromType(typeof(T))));
+            return new DbTableQuery<T>(this, TableDefFromType(typeof(T)));
         }
         
         public IDbQueryable<TFields> Const<TFields>(Func<TFields> fields)

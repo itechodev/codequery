@@ -1,37 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using CodeQuery.Definitions;
 using CodeQuery.Interfaces;
+using CodeQuery.SqlExpressions;
 
 namespace CodeQuery
 {
-    public class DbQuery<T> : IDbTable<T>
+    public class DbQuery<T> : SqlSource, IDbQueryable<T>
     {
-        private SqlQuerySelect _query;
-
-        public DbQuery(DbSchema schema, SqlQuerySelect query)
+        protected DbSchema Schema;
+        public DbQuery(DbSchema schema, SqlSource parent, Type reflectedType, List<SqlColumnDefinition> columns) : base(parent, reflectedType, columns)
         {
-            _query = query;
+            Schema = schema;
         }
-        
+
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
-            // Simple access
-            //     t => t.Column
-            // Use of aggregates
-            //     t => t.Max(f => f.Column)
-            // Binary operations
-            //     t => t.Column + t.Column2
-            // Math, String and DateTime functions
-            //    t => t.String.Substr(10) 
+            SqlExpressionParser.Parse(fields.Body, this);
             
-            // Multi column access
-            //     t => new { exp1, NameField3 = exp2 }
-            
-            ExpressionPrinter.Print(fields);
-            
-            
-
             throw new NotImplementedException();
         }
 
@@ -71,26 +58,6 @@ namespace CodeQuery
         }
 
         public IDbQueryFetchable<T> SelectAll()
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Delete(Expression<Func<T, bool>> predicate)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDbUpdatable<T> Update(Expression<Func<T>> field, Expression<Func<T>> value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Insert(IEnumerable<T> entries)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int Insert(T entry)
         {
             throw new NotImplementedException();
         }

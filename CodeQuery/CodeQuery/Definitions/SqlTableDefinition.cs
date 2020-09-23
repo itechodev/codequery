@@ -11,13 +11,7 @@ namespace CodeQuery.Definitions
         // Table name as in the database
         public string Name { get; }
         
-        public SqlTableDefinition(string name)
-        {
-            Name = name;
-            Columns = new List<SqlColumnDefinition>();
-        }
-
-        public SqlTableDefinition(Type t)
+        public SqlTableDefinition(Type t): base(null, t)
         {
             var customName = t.GetCustomAttribute<TableAttribute>();
             var tableName = customName?.Name ?? t.Name;
