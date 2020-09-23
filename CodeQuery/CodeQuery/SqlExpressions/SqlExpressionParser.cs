@@ -1,15 +1,26 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CodeQuery.Definitions;
+using CodeQuery.Translators;
 
 namespace CodeQuery.SqlExpressions
 {
     
     public static class SqlExpressionParser
     {
+
+        private static readonly List<ISqlMethodTranslator> MethodTranslators;
+
+        static SqlExpressionParser()
+        {
+            MethodTranslators = new List<ISqlMethodTranslator>()
+            {
+                new SqlStringMethodTranslator(),
+                new SqlDateTimeMethodTranslator()
+            };
+        }
 
         public static SqlExpression Parse(Expression expression, SqlSource source)
         {
@@ -57,45 +68,47 @@ namespace CodeQuery.SqlExpressions
                     exp,
                     i,
                     @new.Members[i].Name,
-                    @new.Members[i].ReflectedType
+                    GetMemberType(@new.Members[i])
                 ));
             }
 
             return ret;
         }
 
+        private static Type GetMemberType(MemberInfo member)
+        {
+            switch (member.MemberType)
+            {
+                case MemberTypes.Event:
+                    return ((EventInfo)member).EventHandlerType;
+                case MemberTypes.Field:
+                    return ((FieldInfo)member).FieldType;
+                case MemberTypes.Method:
+                    return ((MethodInfo)member).ReturnType;
+                case MemberTypes.Property:
+                    return ((PropertyInfo)member).PropertyType;
+                default:
+                    throw new SqlExpressionException($"Cannot determine type for {member.Name}");
+            }
+        }
+
         private static SqlExpression ParseMethodExpression(MethodCallExpression call, List<SqlSource> sources)
         {
-            // String functions
-            if (call.Method.ReflectedType == typeof(string))
+            // Run through translators
+            foreach (var translator in MethodTranslators)
             {
-                // = t.Added.ToShortDateString().Substring(5) .Trim()
-                // Trim( Substr(ToShortDateString(t."Added"), 5))
-                var arg = Parse(call.Object, sources);
-
-                switch (call.Method.Name)
+                if (!translator.ForMethod(call.Method)) continue;
+                
+                var body = Parse(call.Object, sources);
+                var ret = translator.Parse(call.Method, body, call, expression => Parse(expression, sources));
+                if (ret != null)
                 {
-                    case nameof(string.Trim):
-                        // trim does not have any arguments
-                        return new SqlFunctionExpression(SqlFunctionType.Trim, new[] {arg});
-                    case nameof(string.Substring):
-                        // substring(string [from <str_pos>] [for <ext_char>])
-                        var args = new[]
-                        {
-                            arg,
-                            Parse(call.Arguments.IndexOrDefault(0), sources),
-                            Parse(call.Arguments.IndexOrDefault(1), sources)
-                        };
-                        return new SqlFunctionExpression(SqlFunctionType.Substr, args);
+                    return ret;
                 }
-            }
-
-            if (call.Method.ReflectedType == typeof(int))
-            {
-                // cast etc.
+                // else continue
             }
             
-            throw new SqlExpressionException($"Could not translate method {call.Method.Name} to a SQL expression");
+            throw new SqlExpressionException($"Could not translate method {call.Method.Name} to a SQL expression.");
         }
 
 

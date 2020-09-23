@@ -12,5 +12,15 @@ namespace CodeQuery.SqlExpressions
             Value = value;
             Type = type;
         }
+
+        public static implicit operator SqlConstExpression(int value)
+        {
+            return new SqlConstExpression(value, SqlColumnType.Int32);
+        }
+        
+        public static implicit operator SqlConstExpression(string value)
+        {
+            return new SqlConstExpression(value, SqlColumnType.Varchar);
+        }
     }
 }

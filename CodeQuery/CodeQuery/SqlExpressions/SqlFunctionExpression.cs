@@ -6,8 +6,8 @@ namespace CodeQuery.SqlExpressions
     {
         public SqlFunctionType Type { get; }
         public SqlExpression[] Arguments { get; }
-
-        public SqlFunctionExpression(SqlFunctionType type, SqlExpression[] arguments)
+        
+        public SqlFunctionExpression(SqlFunctionType type, params SqlExpression[] arguments)
         {
             Type = type;
             Arguments = arguments;
