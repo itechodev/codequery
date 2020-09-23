@@ -11,8 +11,6 @@ namespace CodeQuery.SqlExpressions
     public static class SqlExpressionParser
     {
 
-        // MethodTranslators for instance methods and
-        // MemberTranslators for instance-less (static) methods
         private static readonly List<ISqlMethodTranslator> MethodTranslators;
         private static readonly List<ISqlMemberTranslator> MemberTranslators;
 

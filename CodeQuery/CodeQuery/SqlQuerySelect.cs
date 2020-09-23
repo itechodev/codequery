@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CodeQuery.Definitions;
+using CodeQuery.SqlExpressions;
 
 namespace CodeQuery
 {
@@ -56,12 +57,11 @@ namespace CodeQuery
             Sources = new List<SqlSource>() { source };
         }
 
-        public string[] Fields { get; set; }
-        
+        public SqlSelectListExpression Fields { get; set; }
         public List<SqlSource> Sources { get; set; }
         
-        public string GroupBy { get; set; }
-        public string Where { get; set; }
-        public string Join { get; set; }
+        // public string GroupBy { get; set; }
+        // public string Where { get; set; }
+        // public string Join { get; set; }
     }
 }

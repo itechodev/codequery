@@ -43,16 +43,10 @@ namespace CodeQuery
             }
             
             // Read all DbTables from this assembly and convert into table definitions
-            _definitions = new Dictionary<Type, SqlTableDefinition>();
-            var tables = Assembly.GetExecutingAssembly()
+            _definitions = Assembly.GetExecutingAssembly()
                 .GetTypes()
-                .Where(t => !t.IsInterface && typeof(DbTable).IsAssignableFrom(t));
-                
-            foreach (var table in tables)
-            {
-                _definitions[table] = new SqlTableDefinition(table);
-                
-            }
+                .Where(t => !t.IsInterface && typeof(DbTable).IsAssignableFrom(t))
+                .ToDictionary(t => t, t => new SqlTableDefinition(t));
         }
     }
 }

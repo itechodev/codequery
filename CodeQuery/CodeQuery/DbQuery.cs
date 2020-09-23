@@ -17,7 +17,7 @@ namespace CodeQuery
 
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
-            SqlExpressionParser.Parse(fields.Body, this);
+            var pp = SqlExpressionParser.Parse(fields.Body, this);
             
             throw new NotImplementedException();
         }
