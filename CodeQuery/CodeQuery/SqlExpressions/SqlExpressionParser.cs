@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CodeQuery.Definitions;
@@ -9,6 +10,12 @@ namespace CodeQuery.SqlExpressions
     
     public static class SqlExpressionParser
     {
+
+        public static SqlExpression Parse(Expression expression, SqlSource source)
+        {
+            return Parse(expression, new List<SqlSource> {source});
+        }
+        
         public static SqlExpression Parse(Expression expression, List<SqlSource> sources)
         {
             if (expression == null)
@@ -30,10 +37,31 @@ namespace CodeQuery.SqlExpressions
                 // t.Column.Substr(50).Trim()
                 case MethodCallExpression call:
                     return ParseMethodExpression(call, sources);
-                    
+                case NewExpression @new:
+                    return ParseNewExpression(@new, sources);
                 default:
                     throw new NotImplementedException();
             }
+        }
+
+        private static SqlExpression ParseNewExpression(NewExpression @new, List<SqlSource> sources)
+        {
+            // Only default constructors are allowed. 
+            // Blocked by the generic constraint
+            var ret = new SqlSelectListExpression(@new.Constructor.ReflectedType);
+            // new { Member = Argument, ..};
+            for (var i = 0; i < @new.Arguments.Count; i++)
+            {
+                var exp = Parse(@new.Arguments[i], sources);
+                ret.Add(new SqlSelectExpression(
+                    exp,
+                    i,
+                    @new.Members[i].Name,
+                    @new.Members[i].ReflectedType
+                ));
+            }
+
+            return ret;
         }
 
         private static SqlExpression ParseMethodExpression(MethodCallExpression call, List<SqlSource> sources)
