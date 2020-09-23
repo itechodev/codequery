@@ -11,18 +11,65 @@ namespace CodeQuery.SqlExpressions
     {
         public static SqlExpression Parse(Expression expression, List<SqlSource> sources)
         {
+            if (expression == null)
+            {
+                return null;
+            }
+            
             switch (expression)
             {
+                // 55
                 case ConstantExpression constant:
                     return ParseConstant(constant);
+                // [Exp] + [Expr]
                 case BinaryExpression binary:
                     return ParseBinaryExpression(binary, sources);
+                // t.Column
                 case MemberExpression member:
                     return ParseMemberExpression(member, sources);
+                // t.Column.Substr(50).Trim()
+                case MethodCallExpression call:
+                    return ParseMethodExpression(call, sources);
+                    
                 default:
                     throw new NotImplementedException();
             }
         }
+
+        private static SqlExpression ParseMethodExpression(MethodCallExpression call, List<SqlSource> sources)
+        {
+            // String functions
+            if (call.Method.ReflectedType == typeof(string))
+            {
+                // = t.Added.ToShortDateString().Substring(5) .Trim()
+                // Trim( Substr(ToShortDateString(t."Added"), 5))
+                var arg = Parse(call.Object, sources);
+
+                switch (call.Method.Name)
+                {
+                    case nameof(string.Trim):
+                        // trim does not have any arguments
+                        return new SqlFunctionExpression(SqlFunctionType.Trim, new[] {arg});
+                    case nameof(string.Substring):
+                        // substring(string [from <str_pos>] [for <ext_char>])
+                        var args = new[]
+                        {
+                            arg,
+                            Parse(call.Arguments.IndexOrDefault(0), sources),
+                            Parse(call.Arguments.IndexOrDefault(1), sources)
+                        };
+                        return new SqlFunctionExpression(SqlFunctionType.Substr, args);
+                }
+            }
+
+            if (call.Method.ReflectedType == typeof(int))
+            {
+                // cast etc.
+            }
+            
+            throw new SqlExpressionException($"Could not translate method {call.Method.Name} to a SQL expression");
+        }
+
 
         private static SqlExpression ParseMemberExpression(MemberExpression member, List<SqlSource> sources)
         {
@@ -44,19 +91,19 @@ namespace CodeQuery.SqlExpressions
                 }
             }
 
-            // Math functions
+            // Static Math functions
             if (member.Member.ReflectedType == typeof(System.Math))
             {
                 
             }
             
-            // String functions
+            // Static string functions like String.IsNullOrEmpty
             if (member.Member.ReflectedType == typeof(string))
             {
                 
             }
             
-            // else it a access to a field (column)
+            // else it is a field (column)
             return new SqlColumnExpression(GetReferenceFieldDef(member.Member, sources));
         }
         

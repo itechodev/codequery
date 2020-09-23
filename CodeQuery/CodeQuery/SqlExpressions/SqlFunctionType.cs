@@ -7,10 +7,12 @@ namespace CodeQuery.SqlExpressions
         Left, 
         Length,
         Right,
+        Trim,
+        Substr,
         
         // DateTime
         CurrentDate,
         CurrentTime,
-        CurrentTimeStamp
+        CurrentTimeStamp,
     }
 }
