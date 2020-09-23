@@ -15,10 +15,10 @@ namespace CodeQuery
             var res = db.From<TopUp>()
                 .Select(t => new
                 {
-                    // t.Added, 
-                    // Count =  t.Count, 
-                    // Now = DateTime.Now,
-                    // Count2 = t.Count * 10,
+                    t.Added, 
+                    CountColumnName =  t.Count, 
+                    Now = DateTime.Now,
+                    Count2 = t.Count * 10,
                     AdedAsString = t.Added.ToShortDateString().Substring(5).Trim()
                 })
                 .FetchMultiple();
