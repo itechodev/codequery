@@ -1,28 +1,30 @@
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using CodeQuery.Definitions;
 
 namespace CodeQuery.SqlExpressions
 {
+    
     public static class SqlExpressionParser
     {
-        public static SqlExpression Parse(Expression expression)
+        public static SqlExpression Parse(Expression expression, List<SqlSource> sources)
         {
             switch (expression)
             {
                 case ConstantExpression constant:
                     return ParseConstant(constant);
                 case BinaryExpression binary:
-                    return ParseBinaryExpression(binary);
+                    return ParseBinaryExpression(binary, sources);
                 case MemberExpression member:
-                    return ParseMemberExpression(member);
+                    return ParseMemberExpression(member, sources);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        private static SqlExpression ParseMemberExpression(MemberExpression member)
+        private static SqlExpression ParseMemberExpression(MemberExpression member, List<SqlSource> sources)
         {
             // if (member.NodeType == ExpressionType.MemberAccess)
             // Maybe there are anything other than memberAccess
@@ -55,19 +57,30 @@ namespace CodeQuery.SqlExpressions
             }
             
             // else it a access to a field (column)
-            return new SqlColumnExpression(GetReferenceFieldDef(member.Member));
+            return new SqlColumnExpression(GetReferenceFieldDef(member.Member, sources));
         }
-
-        private static SqlColumnDefinition GetReferenceFieldDef(MemberInfo memberMember)
+        
+        private static SqlColumnDefinition GetReferenceFieldDef(MemberInfo info, List<SqlSource> sources)
         {
-            throw new NotImplementedException();
+            var source = sources.Find(s => s.ReflectedType == info.ReflectedType);
+            if (source == null)
+            {
+                throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
+            }
+
+            var col = source.Columns.Find(c => c.Name == info.Name);
+            if (col == null)
+            {
+                throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
+            }
+            return col;
         }
 
-        private static SqlExpression ParseBinaryExpression(BinaryExpression binary)
+        private static SqlExpression ParseBinaryExpression(BinaryExpression binary, List<SqlSource> sources)
         {
             return new SqlBinaryExpression(
-                Parse(binary.Left), 
-                Parse(binary.Right), 
+                Parse(binary.Left, sources), 
+                Parse(binary.Right, sources), 
                 ToSqlBinaryOperator(binary.NodeType)
             );
         }
