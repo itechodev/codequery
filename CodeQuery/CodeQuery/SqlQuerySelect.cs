@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CodeQuery.Definitions;
 
@@ -5,7 +6,9 @@ namespace CodeQuery
 {
     public abstract class SqlSource
     {
-        
+        public SqlSource Parent { get; }
+        public Type ReflectedType { get;  }
+        public List<SqlColumnDefinition> Columns { get; protected set; }
     }
     
     // Select const fields without a source
@@ -21,16 +24,6 @@ namespace CodeQuery
         
     }
     
-    public class SqlTableSource : SqlSource
-    {
-        public SqlTableDefinition Definition { get; }
-
-        public SqlTableSource(SqlTableDefinition definition)
-        {
-            Definition = definition;
-        }
-    }
-
     public class SqlQuerySource : SqlSource
     {
         

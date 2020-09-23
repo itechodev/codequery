@@ -6,12 +6,11 @@ using CodeQuery.Attributes;
 namespace CodeQuery.Definitions
 {
     
-    public class SqlTableDefinition
+    public class SqlTableDefinition : SqlSource
     {
         // Table name as in the database
         public string Name { get; }
-        public List<SqlColumnDefinition> Columns { get;  }
-
+        
         public SqlTableDefinition(string name)
         {
             Name = name;
