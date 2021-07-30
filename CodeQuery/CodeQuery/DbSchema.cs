@@ -7,7 +7,7 @@ using CodeQuery.Interfaces;
 
 namespace CodeQuery
 {
-    public abstract class DbSchema
+    public class DbSchema
     {
         private static Dictionary<Type, SqlTableDefinition> _definitions;
 
@@ -43,8 +43,8 @@ namespace CodeQuery
             }
             
             // Read all DbTables from this assembly and convert into table definitions
-            _definitions = Assembly.GetExecutingAssembly()
-                .GetTypes()
+            _definitions = Assembly.GetEntryAssembly()
+                ?.GetTypes()
                 .Where(t => !t.IsInterface && typeof(DbTable).IsAssignableFrom(t))
                 .ToDictionary(t => t, t => new SqlTableDefinition(t));
         }
