@@ -5,6 +5,14 @@ using CodeQuery.SqlExpressions;
 
 namespace CodeQuery
 {
+    /// <summary>
+    /// The structure as returned from a query, table or generation function
+    /// </summary>
+    public class ResultDefinition
+    {
+        public List<SqlColumnDefinition> Columns { get; protected set; }
+    }
+    
     public abstract class SqlSource
     {
         public SqlSource Parent { get; }
