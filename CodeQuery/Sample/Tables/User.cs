@@ -1,16 +1,13 @@
-﻿using System;
-using System.Linq;
+using System;
+using CodeQuery;
 using CodeQuery.Interfaces;
 
-namespace CodeQuery
+namespace Sample.Tables
 {
-    // ---------------------------
-
     public class Enquiries: DbTable
     {
         public int Id { get; set; }
         public int UserId { get; set;  }
-        
     }
 
     public class User : DbTable
@@ -26,8 +23,7 @@ namespace CodeQuery
         public DateTime Added { get; set; }
         public int Count { get; set; }
     }
-
-   
+    
     public class TestDb : DbSchema
     {
         public void Query()
