@@ -6,7 +6,24 @@ using CodeQuery.Definitions;
 using CodeQuery.Interfaces;
 
 namespace CodeQuery
-{
+{ 
+    /// <summary>
+    /// Set Returning Functions
+    /// https://www.postgresql.org/docs/9.5/functions-srf.html
+    /// </summary>
+    public static class DbFunctions
+    {
+        public static IDbQueryFetchable<int> GenerateSeries(int from, int to)
+        {
+            // var func = new SqlFunctionExpression(
+            //     "generate_series",
+            //     new SqlConstExpression(from, SqlColumnType.Int32),
+            //     new SqlConstExpression(to, SqlColumnType.Int32)
+            // );
+            return null;
+        }
+    }
+    
     public class DbSchema
     {
         private static Dictionary<Type, SqlTableDefinition> _definitions;
@@ -28,6 +45,13 @@ namespace CodeQuery
         {
             return new DbTableQuery<T>(this, TableDefFromType(typeof(T)));
         }
+        
+        public IDbQueryable<T> Select<T>(T fields)
+        {
+            throw new System.NotImplementedException();
+        }
+        
+        
         
         public IDbQueryable<TFields> Const<TFields>(Func<TFields> fields)
         {

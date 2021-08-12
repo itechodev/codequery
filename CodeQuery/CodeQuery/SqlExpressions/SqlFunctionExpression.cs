@@ -12,5 +12,10 @@ namespace CodeQuery.SqlExpressions
             Type = type;
             Arguments = arguments;
         }
+        
+        public SqlFunctionExpression(string functionName, params SqlExpression[] arguments): this(SqlFunctionType.Custom, arguments)
+        {
+            
+        }
     }
 }

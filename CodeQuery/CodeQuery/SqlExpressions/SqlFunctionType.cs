@@ -14,6 +14,8 @@ namespace CodeQuery.SqlExpressions
         CurrentDate,
         CurrentTime,
         CurrentTimeStamp,
-        TimestampToString
+        TimestampToString,
+        
+        Custom,
     }
 }
