@@ -4,22 +4,21 @@ using Sample.Tables;
 
 namespace Sample
 {
+    
+    // generated code...
     public class TestDb : DbSchema
     {
-        public void Query()
+        public IDbQueryable<TopUp> TopUp { get; set; }
+        public IDbQueryable<User> User { get; set; }
+        public IDbQueryable<Enquiries> Enquiry { get; set; }
+    }
+
+    // Generated extensions...
+    public static class JoinExtensions
+    {
+        public static IDbQueryable2<TopUp, User> JoinUser(this IDbQueryable<TopUp> query)
         {
-            var results = From<TopUp>()
-                .Join<User>(JoinType.Inner)
-                .Where((up, user) => up.Id < 100 && user.Id > 200)
-                .GroupBy((up, user) => user.Id)
-                .Select(a => new
-                {
-                    UserId = a.Key,
-                    MinId = a.Min((t, _) => t.Id),
-                    MaxId = a.Max((t, _) => t.Id),
-                    Count = a.Sum((t, _) => t.Count),
-                });
+            return query.Join<User>(JoinType.Inner);
         }
-        
     }
 }

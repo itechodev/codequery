@@ -9,11 +9,14 @@ namespace Sample
     {
         static void Main(string[] args)
         {
-            var db = new DbSchema();
+            var db = new TestDb();
             db.Initialize();
             
-            var results = db.From<TopUp>()
-                .Join<User>(JoinType.Inner)
+            // Select 1 as "num", current_date as "now"
+            
+
+            var results = db.TopUp
+                .JoinUser()
                 .Where((up, user) => up.Id < 100 && user.Id > 200)
                 .GroupBy((up, user) => user.Id)
                 .Select(a => new
