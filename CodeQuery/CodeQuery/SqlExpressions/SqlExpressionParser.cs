@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using CodeQuery.Definitions;
@@ -28,12 +29,7 @@ namespace CodeQuery.SqlExpressions
             };
         }
 
-        public static SqlExpression Parse(Expression expression, SqlSource source)
-        {
-            return Parse(expression, new List<SqlSource> {source});
-        }
-        
-        public static SqlExpression Parse(Expression expression, List<SqlSource> sources)
+        public static SqlExpression Parse(Expression expression, params SqlSource[] sources)
         {
             if (expression == null)
             {
@@ -56,12 +52,16 @@ namespace CodeQuery.SqlExpressions
                     return ParseMethodExpression(call, sources);
                 case NewExpression @new:
                     return ParseNewExpression(@new, sources);
+                // (a, b) => ...
+                case LambdaExpression lambda:
+                    // var parameters = lambda.Parameters.Select(p => Parse(p))
+                    return Parse(lambda.Body, sources);
                 default:
                     throw new NotImplementedException();
             }
         }
 
-        private static SqlExpression ParseNewExpression(NewExpression @new, List<SqlSource> sources)
+        private static SqlExpression ParseNewExpression(NewExpression @new, SqlSource[] sources)
         {
             // Only default constructors are allowed. 
             // Blocked by the generic constraint
@@ -98,7 +98,7 @@ namespace CodeQuery.SqlExpressions
             }
         }
 
-        private static SqlExpression ParseMethodExpression(MethodCallExpression call, List<SqlSource> sources)
+        private static SqlExpression ParseMethodExpression(MethodCallExpression call, SqlSource[] sources)
         {
             // Run through translators
             foreach (var translator in MethodTranslators)
@@ -118,7 +118,7 @@ namespace CodeQuery.SqlExpressions
         }
 
 
-        private static SqlExpression ParseMemberExpression(MemberExpression member, List<SqlSource> sources)
+        private static SqlExpression ParseMemberExpression(MemberExpression member, SqlSource[] sources)
         {
             // if (member.NodeType == ExpressionType.MemberAccess)
             // Maybe there are anything other than memberAccess
@@ -144,24 +144,23 @@ namespace CodeQuery.SqlExpressions
             return new SqlColumnExpression(GetReferenceFieldDef(member.Member, sources));
         }
         
-        private static SqlColumnDefinition GetReferenceFieldDef(MemberInfo info, List<SqlSource> sources)
+        private static SqlColumnDefinition GetReferenceFieldDef(MemberInfo info, SqlSource[] sources)
         {
-            // var source = sources.Find(s => s.ReflectedType == info.ReflectedType);
-            // if (source == null)
-            // {
-            //     throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
-            // }
-            //
-            // var col = source.Columns.Find(c => c.Name == info.Name);
-            // if (col == null)
-            // {
-            //     throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
-            // }
-            // return col;
-            throw new NotImplementedException();
+            var source = sources.ToList().Find(s => s.ReflectedType == info.ReflectedType);
+            if (source == null)
+            {
+                throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
+            }
+            
+            var col = source.Columns.Find(c => c.Name == info.Name);
+            if (col == null)
+            {
+                throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
+            }
+            return col;
         }
 
-        private static SqlExpression ParseBinaryExpression(BinaryExpression binary, List<SqlSource> sources)
+        private static SqlExpression ParseBinaryExpression(BinaryExpression binary, SqlSource[] sources)
         {
             return new SqlBinaryExpression(
                 Parse(binary.Left, sources), 

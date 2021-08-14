@@ -43,7 +43,7 @@ namespace CodeQuery
 
         protected DbTableQuery<TTable> CreateTable<TTable>()
         {
-            return new DbTableQuery<TTable>();
+            return new DbTableQuery<TTable>(typeof(TTable).Name);
         }
             
         

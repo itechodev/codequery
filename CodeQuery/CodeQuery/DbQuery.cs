@@ -31,14 +31,16 @@ namespace CodeQuery
 
         public IDbQueryable2<T, TSource2> InnerJoin<TSource2>(IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)
         {
-            var source = new SqlJoinSource()
-            {
-                Left = _query.Source,
-                Right = @join.SqlSource() 
-                // Condition
-                // Type
-            };
-            return new DbQuery2<T, TSource2>(source);
+            // link T with table sql source
+            // link TSource2 with subQuery..
+            var joinSource = new SqlJoinSource(
+                SqlSource(),
+                @join.SqlSource(),
+                SqlExpressionParser.Parse(condition, SqlSource(), @join.SqlSource()),
+                JoinType.Inner
+            );
+
+            return new DbQuery2<T, TSource2>(joinSource);
         }
 
         public IDbQueryable2<T, TSource2> LeftJoin<TSource2>(IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)

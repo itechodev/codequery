@@ -10,7 +10,7 @@ namespace CodeQuery
     // It is both a table - support CRUD statements and a DbQuery
     public class DbTableQuery<T> : DbQuery<T>, IDbTable<T> 
     {
-        public DbTableQuery(): base(new SqlTableSource())
+        public DbTableQuery(string tableName): base(new SqlTableSource(tableName))
         {
             
         }

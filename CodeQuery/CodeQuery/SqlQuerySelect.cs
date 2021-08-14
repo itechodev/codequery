@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using CodeQuery.Definitions;
+using CodeQuery.Interfaces;
 using CodeQuery.SqlExpressions;
 
 namespace CodeQuery
@@ -15,7 +17,9 @@ namespace CodeQuery
     
     public abstract class SqlSource
     {
-      
+        public Type ReflectedType { get;  }
+        public List<SqlColumnDefinition> Columns { get; protected set; }
+
     }
     
     // Select const fields without a source
@@ -38,13 +42,28 @@ namespace CodeQuery
 
     public class SqlTableSource : SqlSource
     {
-        
+        public string TableName { get; }
+
+        public SqlTableSource(string tableName)
+        {
+            TableName = tableName;
+        }
     }
 
     public class SqlJoinSource : SqlSource
     {
         public SqlSource Left;
         public SqlSource Right;
+        public SqlExpression Condition;
+        public JoinType JoinType;
+
+        public SqlJoinSource(SqlSource left, SqlSource right, SqlExpression condition, JoinType joinType)
+        {
+            Left = left;
+            Right = right;
+            Condition = condition;
+            JoinType = joinType;
+        }
     }
 
     public class SqlUnionSource : SqlSource
