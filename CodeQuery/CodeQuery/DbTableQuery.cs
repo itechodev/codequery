@@ -22,6 +22,26 @@ namespace CodeQuery
             throw new NotImplementedException();
         }
 
+        public IDbUpdatable<T> Update(Expression<Func<T, object>> field, Expression<Func<T, object>> value)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IDbTable<T>.Insert(IEnumerable<T> entries)
+        {
+            throw new NotImplementedException();
+        }
+
+        void IDbTable<T>.Insert(T entry)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Insert(IDbQueryable<T> query)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDbUpdatable<T> Update(Expression<Func<T>> field, Expression<Func<T>> value)
         {
             throw new NotImplementedException();
