@@ -146,18 +146,19 @@ namespace CodeQuery.SqlExpressions
         
         private static SqlColumnDefinition GetReferenceFieldDef(MemberInfo info, List<SqlSource> sources)
         {
-            var source = sources.Find(s => s.ReflectedType == info.ReflectedType);
-            if (source == null)
-            {
-                throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
-            }
-
-            var col = source.Columns.Find(c => c.Name == info.Name);
-            if (col == null)
-            {
-                throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
-            }
-            return col;
+            // var source = sources.Find(s => s.ReflectedType == info.ReflectedType);
+            // if (source == null)
+            // {
+            //     throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
+            // }
+            //
+            // var col = source.Columns.Find(c => c.Name == info.Name);
+            // if (col == null)
+            // {
+            //     throw new SqlExpressionException($"Could not translate property {info.Name} into a SQL source.");
+            // }
+            // return col;
+            throw new NotImplementedException();
         }
 
         private static SqlExpression ParseBinaryExpression(BinaryExpression binary, List<SqlSource> sources)

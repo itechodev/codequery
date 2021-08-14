@@ -5,12 +5,16 @@ namespace CodeQuery.Interfaces
 {
     public interface IDbQueryable<TSource>
     {
+        SqlSource SqlSource();
         IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<TSource, TSelect>> fields);
-        IDbQueryable2<TSource, TSource2> Join<TSource2>(JoinType joinType, IDbQueryable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
-
-        IDbQueryable2<TSource, TSource2> Join<TSource2>(JoinType joinType,
-            Expression<Func<TSource, TSource2, bool>> condition = null) where TSource2 : IDbSource;
         
+        // IDbQueryable2<TSource, TSource2> InnerJoin<TSource2>(IDbTable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
+        IDbQueryable2<TSource, TSource2> InnerJoin<TSource2>(IDbQueryable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
+        
+        IDbQueryable2<TSource, TSource2> LeftJoin<TSource2>(IDbQueryable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
+        IDbQueryable2<TSource, TSource2> RightJoin<TSource2>(IDbQueryable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
+        IDbQueryable2<TSource, TSource2> CrossJoin<TSource2>(IDbQueryable<TSource2> join, Expression<Func<TSource, TSource2, bool>> condition = null);
+
         IDbQueryable<IDbAggregate<TKey, TSource>> GroupBy<TKey>(Expression<Func<TSource, TKey>> order);
         IDbQueryable<TSource> Order(Expression<Func<TSource, object>> order, OrderBy orderBy);
         IDbQueryable<TSource> Where(Expression<Func<TSource, bool>> predicate);

@@ -7,18 +7,52 @@ using CodeQuery.SqlExpressions;
 
 namespace CodeQuery
 {
-    public class DbQuery<T> : SqlSource, IDbQueryable<T>
+    public class DbQuery<T> : IDbQueryable<T>
     {
-        protected DbSchema Schema;
-        public DbQuery(DbSchema schema, SqlSource parent, Type reflectedType, List<SqlColumnDefinition> columns) : base(parent, reflectedType, columns)
+        private SqlQuerySelect _query;
+
+        public DbQuery(SqlSource source)
         {
-            Schema = schema;
+            _query = new SqlQuerySelect()
+            {
+                Source = source
+            };
+        }
+
+        public SqlSource SqlSource()
+        {
+            return _query.Source;
         }
 
         public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T, TSelect>> fields)
         {
-            var pp = SqlExpressionParser.Parse(fields.Body, this);
-            
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable2<T, TSource2> InnerJoin<TSource2>(IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)
+        {
+            var source = new SqlJoinSource()
+            {
+                Left = _query.Source,
+                Right = @join.SqlSource() 
+                // Condition
+                // Type
+            };
+            return new DbQuery2<T, TSource2>(source);
+        }
+
+        public IDbQueryable2<T, TSource2> LeftJoin<TSource2>(IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable2<T, TSource2> RightJoin<TSource2>(IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable2<T, TSource2> CrossJoin<TSource2>(IDbQueryable<TSource2> @join, Expression<Func<T, TSource2, bool>> condition = null)
+        {
             throw new NotImplementedException();
         }
 
@@ -58,6 +92,54 @@ namespace CodeQuery
         }
 
         public IDbQueryFetchable<T> SelectAll()
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DbQuery2<T1, T2> : IDbQueryable2<T1, T2>
+    {
+        private readonly SqlQuerySelect _query;
+
+        public DbQuery2(SqlSource source)
+        {
+            _query = new SqlQuerySelect()
+            {
+                Source = source
+            };
+        }
+
+        public IDbQueryFetchable<TSelect> Select<TSelect>(Expression<Func<T1, T2, TSelect>> fields)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable3<T1, T2, TSource3> Join<TSource3>(JoinType joinType, IDbQueryable<TSource3> @join, Expression<Func<T1, T2, TSource3, bool>> condition = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable<IDbAggregate2<TKey, T1, T2>> GroupBy<TKey>(Expression<Func<T1, T2, TKey>> order)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable2<T1, T2> Order(Expression<Func<T1, T2, object>> order, OrderBy orderBy)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryable2<T1, T2> Where(Expression<Func<T1, T2, bool>> predicate)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryFetchable<T1> Union(IDbQueryable2<T1, T2> other)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDbQueryFetchable<T1> UnionAll(IDbQueryable2<T1, T2> other)
         {
             throw new NotImplementedException();
         }

@@ -2,7 +2,7 @@ namespace CodeQuery.Definitions
 {
     public class SqlColumnDefinition
     {
-        public SqlColumnDefinition(SqlTableDefinition owner, string name, SqlColumnType type)
+        public SqlColumnDefinition(SqlTableSource owner, string name, SqlColumnType type)
         {
             Owner = owner;
             Name = name;
@@ -28,7 +28,7 @@ namespace CodeQuery.Definitions
         }
         
 
-        public SqlTableDefinition Owner { get; }
+        public SqlTableSource Owner { get; }
         public string Name { get; }
         public SqlColumnType Type { get; }
         public object DefaultValue { get; }

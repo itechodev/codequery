@@ -26,9 +26,9 @@ namespace CodeQuery
     
     public class DbSchema
     {
-        private static Dictionary<Type, SqlTableDefinition> _definitions;
+        private static Dictionary<Type, SqlTableSource> _definitions;
 
-        private SqlTableDefinition TableDefFromType(Type t)
+        private static SqlTableSource TableDefFromType(Type t)
         {
             if (_definitions == null)
             {
@@ -40,10 +40,17 @@ namespace CodeQuery
             }
             return _definitions[t];
         }
+
+        protected DbTableQuery<TTable> CreateTable<TTable>()
+        {
+            return new DbTableQuery<TTable>();
+        }
+            
         
         public IDbQueryable<T> From<T>() where T : DbTable
         {
-            return new DbTableQuery<T>(this, TableDefFromType(typeof(T)));
+            // return new DbTableQuery<T>(this, TableDefFromType(typeof(T)));
+            throw new System.NotImplementedException();
         }
         
         public IDbQueryable<T> Select<T>(T fields)
@@ -61,16 +68,16 @@ namespace CodeQuery
         public void Initialize()
         {
             // share cache between multiple instances of DatabaseContext
-            if (_definitions != null)
-            {
-                return;
-            }
-            
-            // Read all DbTables from this assembly and convert into table definitions
-            _definitions = Assembly.GetEntryAssembly()
-                ?.GetTypes()
-                .Where(t => !t.IsInterface && typeof(DbTable).IsAssignableFrom(t))
-                .ToDictionary(t => t, t => new SqlTableDefinition(t));
+            // if (_definitions != null)
+            // {
+            //     return;
+            // }
+            //
+            // // Read all DbTables from this assembly and convert into table definitions
+            // _definitions = Assembly.GetEntryAssembly()
+            //     ?.GetTypes()
+            //     .Where(t => !t.IsInterface && typeof(DbTable).IsAssignableFrom(t))
+            //     .ToDictionary(t => t, t => new SqlTableSource(t));
         }
     }
 }

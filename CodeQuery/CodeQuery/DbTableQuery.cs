@@ -10,11 +10,9 @@ namespace CodeQuery
     // It is both a table - support CRUD statements and a DbQuery
     public class DbTableQuery<T> : DbQuery<T>, IDbTable<T> 
     {
-        private SqlQuerySelect _query;
-
-        public DbTableQuery(DbSchema schema, SqlTableDefinition def) : base(schema, null, def.ReflectedType, def.Columns)
+        public DbTableQuery(): base(new SqlTableSource())
         {
-            _query = new SqlQuerySelect(this);
+            
         }
 
         public int Delete(Expression<Func<T, bool>> predicate)
