@@ -22,7 +22,7 @@ namespace CodeQuery
             throw new NotImplementedException();
         }
 
-        public IDbUpdatable<T> Update(Expression<Func<T, object>> field, Expression<Func<T, object>> value)
+        public IDbUpdatable<T> Set(Expression<Func<T, object>> field, Expression<Func<T, object>> value)
         {
             throw new NotImplementedException();
         }

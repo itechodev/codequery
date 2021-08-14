@@ -17,8 +17,9 @@ namespace Sample
             
             // Update users set col1 = val1 [where clause]
             db.User
-                .Update(u => u.Name, u => u.Name + "-changed")
-                .Where(u => u.Id == 10);
+                .Set(u => u.Name, u => u.Name + "-changed")
+                .Where(u => u.Id == 10)
+                .Update();
 
             // Insert into Users (..) values (...)
             db.User.Insert(new User()
