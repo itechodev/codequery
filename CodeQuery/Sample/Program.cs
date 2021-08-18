@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CodeQuery;
 using CodeQuery.Definitions;
 using CodeQuery.Interfaces;
 using CodeQuery.SqlExpressions;
+using CodeQuery.SqlGenerators;
 using Sample.Tables;
 
 namespace Sample
@@ -74,6 +76,21 @@ namespace Sample
                 // });
 
             Console.WriteLine("Hello World!");
+        }
+
+        public static void Expressions()
+        {
+            var userTable = new SqlTableSource("Users");
+                
+            // Select Id, Name from Users
+            var select = new SqlSelectExpression(userTable)
+            {
+                Fields = new List<SqlExpression>()
+                {
+                    new SqlColumnExpression(new SqlColumnDefinition(userTable, "Email", SqlColumnType.Varchar)),
+                    new SqlColumnExpression(new SqlColumnDefinition(userTable, "Id", SqlColumnType.Int32))
+                }
+            };
         }
     }
 }

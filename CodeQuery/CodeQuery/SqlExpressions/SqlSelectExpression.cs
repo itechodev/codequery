@@ -1,20 +1,18 @@
-using System;
+using System.Collections.Generic;
 
 namespace CodeQuery.SqlExpressions
 {
     public class SqlSelectExpression : SqlExpression
     {
-        public SqlExpression Body { get; }
-        public int Order { get; }
-        public string Alias { get; }
-        public Type ReflectedType { get; }
+        public List<SqlExpression> Fields { get; set; }
+        public SqlSource From { get; set; }
+        public SqlBinaryExpression Where { get; set; }
+        public List<SqlExpression> GroupBy { get; set; }
+        public List<SqlExpression> OrderBy { get; set; }
 
-        public SqlSelectExpression(SqlExpression body, int order, string @alias, Type reflectedType)
+        public SqlSelectExpression(SqlSource @from)
         {
-            Body = body;
-            Order = order;
-            Alias = alias;
-            ReflectedType = reflectedType;
+            From = @from;
         }
     }
 }

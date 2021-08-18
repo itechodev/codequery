@@ -1,8 +1,10 @@
+using CodeQuery.SqlExpressions;
+
 namespace CodeQuery.SqlGenerators
 {
     public interface ISqlGenerator
     {
-        string Select(SqlQuerySelect query);
+        string Select(SqlSelectExpression query);
         // Update, Delete, Insert
     }
 }

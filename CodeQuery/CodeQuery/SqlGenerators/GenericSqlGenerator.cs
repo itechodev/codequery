@@ -7,7 +7,7 @@ namespace CodeQuery.SqlGenerators
 {
     public class GenericSqlGenerator : ISqlGenerator
     {
-        public string Select(SqlQuerySelect query)
+        public string Select(SqlSelectExpression query)
         {
             var sql = new StringBuilder();
             // SELECT query.fields from [Source]

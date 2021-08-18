@@ -67,16 +67,16 @@ namespace CodeQuery.SqlExpressions
             // Blocked by the generic constraint
             var ret = new SqlSelectListExpression(@new.Constructor.ReflectedType);
             // new { Member = Argument, ..};
-            for (var i = 0; i < @new.Arguments.Count; i++)
-            {
-                var exp = Parse(@new.Arguments[i], sources);
-                ret.Add(new SqlSelectExpression(
-                    exp,
-                    i,
-                    @new.Members[i].Name,
-                    GetMemberType(@new.Members[i])
-                ));
-            }
+            // for (var i = 0; i < @new.Arguments.Count; i++)
+            // {
+            //     var exp = Parse(@new.Arguments[i], sources);
+            //     ret.Add(new SqlSelectExpression(
+            //         exp,
+            //         i,
+            //         @new.Members[i].Name,
+            //         GetMemberType(@new.Members[i])
+            //     ));
+            // }
 
             return ret;
         }
