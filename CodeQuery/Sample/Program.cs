@@ -14,6 +14,9 @@ namespace Sample
     {
         static void Main(string[] args)
         {
+            Expressions();
+            return;
+            
             var db = new TestDb();
             // db.Initialize();
             
@@ -74,23 +77,28 @@ namespace Sample
                 //     MaxId = a.Max((t, _) => t.Id),
                 //     Count = a.Sum((t, _) => t.Count),
                 // });
-
-            Console.WriteLine("Hello World!");
         }
 
         public static void Expressions()
         {
-            var userTable = new SqlTableSource("Users");
-                
             // Select Id, Name from Users
-            var select = new SqlSelectExpression(userTable)
+            var select = new SqlSelectExpression(UserTable.Source)
             {
                 Fields = new List<SqlExpression>()
                 {
-                    new SqlColumnExpression(new SqlColumnDefinition(userTable, "Email", SqlColumnType.Varchar)),
-                    new SqlColumnExpression(new SqlColumnDefinition(userTable, "Id", SqlColumnType.Int32))
+                    new SqlColumnExpression(UserTable.Id),
+                    new SqlColumnExpression(UserTable.Email)
                 }
             };
         }
+    }
+
+    public static class UserTable
+    {
+        public static readonly SqlTableSource Source = new("Users");
+
+        public static readonly SqlColumnDefinition Id = new(Source, "Id", SqlColumnType.Varchar);
+        public static readonly SqlColumnDefinition Email = new(Source, "Email", SqlColumnType.Varchar);
+        
     }
 }
