@@ -30,6 +30,8 @@ namespace CodeQuery.SqlExpressions
         Or,
         Not,
         Xor,
+        
+        Equal,
         GreaterThan,
         GreaterThanOrEqual,
         LessThan,

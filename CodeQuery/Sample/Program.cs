@@ -16,10 +16,10 @@ namespace Sample
         {
             Expressions();
             return;
-            
+
             var db = new TestDb();
             // db.Initialize();
-            
+
             // // Update users set col1 = val1 [where clause]
             // db.User
             //     .Set(u => u.Name, u => u.Name + "-changed")
@@ -66,28 +66,45 @@ namespace Sample
 
             var results = db.TopUp
                 .InnerJoin(db.User, (up, user) => up.UserId == user.Id);
-            
-                // .Where((up, user) => up.Id < 100 && user.Id > 200)
-                // .GroupBy((up, user) => new {Id = user.Id, Name = user.Name })
-                // .Select(a => new
-                // {
-                //     UserId = a.Key.Id,
-                //     Name = a.Key.Name,
-                //     MinId = a.Min((t, _) => t.Id),
-                //     MaxId = a.Max((t, _) => t.Id),
-                //     Count = a.Sum((t, _) => t.Count),
-                // });
+
+            // .Where((up, user) => up.Id < 100 && user.Id > 200)
+            // .GroupBy((up, user) => new {Id = user.Id, Name = user.Name })
+            // .Select(a => new
+            // {
+            //     UserId = a.Key.Id,
+            //     Name = a.Key.Name,
+            //     MinId = a.Min((t, _) => t.Id),
+            //     MaxId = a.Max((t, _) => t.Id),
+            //     Count = a.Sum((t, _) => t.Count),
+            // });
         }
 
         public static void Expressions()
         {
             // Select Id, Name from Users
-            var select = new SqlSelectExpression(UserTable.Source)
+            var simple = new SqlSelectExpression(UserTable.Source)
             {
                 Fields = new List<SqlExpression>()
                 {
                     new SqlColumnExpression(UserTable.Id),
                     new SqlColumnExpression(UserTable.Email)
+                }
+            };
+
+            /*
+             * Select u.Id, u.Email, l.Message from Users u
+             * inner join Logs l on u.Id = l.UserId
+             */
+            var condition = new SqlBinaryExpression(new SqlColumnExpression(UserTable.Id), new SqlColumnExpression(LogTable.UserId), SqlBinaryOperator.Equal);
+            var join = new SqlSelectExpression(
+                new SqlJoinSource(UserTable.Source, LogTable.Source, condition, JoinType.Inner)
+            )
+            {
+                Fields = new List<SqlExpression>
+                {
+                    new SqlColumnExpression(UserTable.Id),
+                    new SqlColumnExpression(UserTable.Email),
+                    new SqlColumnExpression(LogTable.Message),
                 }
             };
         }
@@ -99,6 +116,14 @@ namespace Sample
 
         public static readonly SqlColumnDefinition Id = new(Source, "Id", SqlColumnType.Varchar);
         public static readonly SqlColumnDefinition Email = new(Source, "Email", SqlColumnType.Varchar);
-        
+    }
+
+    public static class LogTable
+    {
+        public static readonly SqlTableSource Source = new("Logs");
+
+        public static readonly SqlColumnDefinition Id = new(Source, "Id", SqlColumnType.Int32);
+        public static readonly SqlColumnDefinition UserId = new(Source, "UserId", SqlColumnType.Int32);
+        public static readonly SqlColumnDefinition Message = new(Source, "Message", SqlColumnType.Varchar);
     }
 }
