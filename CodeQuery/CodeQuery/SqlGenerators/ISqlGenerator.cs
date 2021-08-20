@@ -4,7 +4,7 @@ namespace CodeQuery.SqlGenerators
 {
     public interface ISqlGenerator
     {
-        string Select(SqlSelectQuery selectQuery);
+        string Select(SqlSelectQuery query);
         // Update, Delete, Insert
     }
 }

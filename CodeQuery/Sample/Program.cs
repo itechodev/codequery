@@ -81,6 +81,8 @@ namespace Sample
 
         public static void Expressions()
         {
+            ISqlGenerator generator = new GenericSqlGenerator();
+            
             // SELECT 31 as "age", 'willem' as "name"
             var constSource = new SqlNoSource();
             var constExp = new SqlSelectQuery(constSource)
@@ -91,6 +93,8 @@ namespace Sample
                     new SqlAliasExpression(new SqlConstExpression("willem", SqlColumnType.Varchar), "name"),
                 }
             };
+
+            Console.WriteLine(generator.Select(constExp));
 
 
             // Select Id, Name from Users
@@ -103,6 +107,8 @@ namespace Sample
                 }
             };
 
+            Console.WriteLine(generator.Select(simple));
+            
             /*
              * Select u.Id, u.Email, l.Message from Users u
              * inner join Logs l on u.Id = l.UserId
@@ -122,6 +128,8 @@ namespace Sample
                     new SqlColumnExpression(LogTable.Message),
                 }
             };
+            
+            Console.WriteLine(generator.Select(join));
 
             // Select "age", "name"
             // from (SELECT 31 as "age", 'willem' as "name") a
@@ -134,6 +142,8 @@ namespace Sample
                     new SqlColumnExpression(new SqlColumnDefinition(constSource, "name", SqlColumnType.Varchar)),
                 }
             };
+            
+            Console.WriteLine(generator.Select(subQuery));
         }
     }
 
