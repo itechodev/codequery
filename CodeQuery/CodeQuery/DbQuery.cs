@@ -33,9 +33,7 @@ namespace CodeQuery
         {
             // link T with table sql source
             // link TSource2 with subQuery..
-            var joinSource = new SqlJoinSource(
-                SqlSource(),
-                @join.SqlSource(),
+            var joinSource = new SqlJoinSource(@join.SqlSource(),
                 SqlExpressionParser.Parse(condition, SqlSource(), @join.SqlSource()),
                 JoinType.Inner
             );

@@ -6,6 +6,8 @@ namespace CodeQuery.SqlExpressions
     {
         public List<SqlExpression> Fields { get; set; }
         public SqlSource From { get; set; }
+        public List<SqlJoinSource> Joins { get; set; }
+
         public SqlBinaryExpression Where { get; set; }
         public List<SqlExpression> GroupBy { get; set; }
         public List<SqlExpression> OrderBy { get; set; }

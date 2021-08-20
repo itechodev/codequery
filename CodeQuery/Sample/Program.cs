@@ -81,6 +81,18 @@ namespace Sample
 
         public static void Expressions()
         {
+            // SELECT 31 as "age", 'willem' as "name"
+            var constSource = new SqlNoSource();
+            var constExp = new SqlSelectExpression(constSource)
+            {
+                Fields = new List<SqlExpression>
+                {
+                    new SqlAliasExpression(new SqlConstExpression(31, SqlColumnType.Int32), "age"),
+                    new SqlAliasExpression(new SqlConstExpression("willem", SqlColumnType.Varchar), "name"),
+                }
+            };
+
+
             // Select Id, Name from Users
             var simple = new SqlSelectExpression(UserTable.Source)
             {
@@ -96,15 +108,30 @@ namespace Sample
              * inner join Logs l on u.Id = l.UserId
              */
             var condition = new SqlBinaryExpression(new SqlColumnExpression(UserTable.Id), new SqlColumnExpression(LogTable.UserId), SqlBinaryOperator.Equal);
-            var join = new SqlSelectExpression(
-                new SqlJoinSource(UserTable.Source, LogTable.Source, condition, JoinType.Inner)
-            )
+
+            var join = new SqlSelectExpression(UserTable.Source)
             {
+                Joins = new List<SqlJoinSource>
+                {
+                    new(LogTable.Source, condition, JoinType.Inner)
+                },
                 Fields = new List<SqlExpression>
                 {
                     new SqlColumnExpression(UserTable.Id),
                     new SqlColumnExpression(UserTable.Email),
                     new SqlColumnExpression(LogTable.Message),
+                }
+            };
+
+            // Select "age", "name"
+            // from (SELECT 31 as "age", 'willem' as "name") a
+
+            var subQuery = new SqlSelectExpression(new SqlQuerySource(constExp, "a"))
+            {
+                Fields = new List<SqlExpression>()
+                {
+                    new SqlColumnExpression(new SqlColumnDefinition(constSource, "age", SqlColumnType.Int32)),
+                    new SqlColumnExpression(new SqlColumnDefinition(constSource, "name", SqlColumnType.Varchar)),
                 }
             };
         }

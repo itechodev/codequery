@@ -37,6 +37,14 @@ namespace CodeQuery
     
     public class SqlQuerySource : SqlSource
     {
+        public SqlSelectExpression Query { get; }
+        public string Alias { get; }
+
+        public SqlQuerySource(SqlSelectExpression query, string alias)
+        {
+            Query = query;
+            Alias = alias;
+        }
         
     }
 
@@ -52,15 +60,13 @@ namespace CodeQuery
 
     public class SqlJoinSource : SqlSource
     {
-        public SqlSource Left;
-        public SqlSource Right;
+        public SqlSource Source;
         public SqlExpression Condition;
         public JoinType JoinType;
 
-        public SqlJoinSource(SqlSource left, SqlSource right, SqlExpression condition, JoinType joinType)
+        public SqlJoinSource(SqlSource source, SqlExpression condition, JoinType joinType)
         {
-            Left = left;
-            Right = right;
+            Source = source;
             Condition = condition;
             JoinType = joinType;
         }
