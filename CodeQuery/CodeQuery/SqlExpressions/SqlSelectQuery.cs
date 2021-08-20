@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace CodeQuery.SqlExpressions
 {
-    public class SqlSelectExpression : SqlExpression
+    public class SqlSelectQuery : SqlExpression
     {
         public List<SqlExpression> Fields { get; set; }
         public SqlSource From { get; set; }
@@ -12,7 +12,7 @@ namespace CodeQuery.SqlExpressions
         public List<SqlExpression> GroupBy { get; set; }
         public List<SqlExpression> OrderBy { get; set; }
 
-        public SqlSelectExpression(SqlSource @from)
+        public SqlSelectQuery(SqlSource @from)
         {
             From = @from;
         }

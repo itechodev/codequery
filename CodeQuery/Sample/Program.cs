@@ -83,7 +83,7 @@ namespace Sample
         {
             // SELECT 31 as "age", 'willem' as "name"
             var constSource = new SqlNoSource();
-            var constExp = new SqlSelectExpression(constSource)
+            var constExp = new SqlSelectQuery(constSource)
             {
                 Fields = new List<SqlExpression>
                 {
@@ -94,7 +94,7 @@ namespace Sample
 
 
             // Select Id, Name from Users
-            var simple = new SqlSelectExpression(UserTable.Source)
+            var simple = new SqlSelectQuery(UserTable.Source)
             {
                 Fields = new List<SqlExpression>()
                 {
@@ -109,7 +109,7 @@ namespace Sample
              */
             var condition = new SqlBinaryExpression(new SqlColumnExpression(UserTable.Id), new SqlColumnExpression(LogTable.UserId), SqlBinaryOperator.Equal);
 
-            var join = new SqlSelectExpression(UserTable.Source)
+            var join = new SqlSelectQuery(UserTable.Source)
             {
                 Joins = new List<SqlJoinSource>
                 {
@@ -126,7 +126,7 @@ namespace Sample
             // Select "age", "name"
             // from (SELECT 31 as "age", 'willem' as "name") a
 
-            var subQuery = new SqlSelectExpression(new SqlQuerySource(constExp, "a"))
+            var subQuery = new SqlSelectQuery(new SqlQuerySource(constExp, "a"))
             {
                 Fields = new List<SqlExpression>()
                 {

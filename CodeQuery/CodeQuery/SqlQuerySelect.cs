@@ -37,12 +37,12 @@ namespace CodeQuery
     
     public class SqlQuerySource : SqlSource
     {
-        public SqlSelectExpression Query { get; }
+        public SqlSelectQuery SelectQuery { get; }
         public string Alias { get; }
 
-        public SqlQuerySource(SqlSelectExpression query, string alias)
+        public SqlQuerySource(SqlSelectQuery selectQuery, string alias)
         {
-            Query = query;
+            SelectQuery = selectQuery;
             Alias = alias;
         }
         

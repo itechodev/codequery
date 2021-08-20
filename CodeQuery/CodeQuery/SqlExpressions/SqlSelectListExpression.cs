@@ -8,14 +8,14 @@ namespace CodeQuery.SqlExpressions
     public class SqlSelectListExpression : SqlExpression
     {
         public Type Type { get; set; }
-        public List<SqlSelectExpression> Expressions { get; private set; } = new List<SqlSelectExpression>();
+        public List<SqlSelectQuery> Expressions { get; private set; } = new List<SqlSelectQuery>();
 
         public SqlSelectListExpression(Type type)
         {
             Type = type;
         }
 
-        public void Add(SqlSelectExpression exp)
+        public void Add(SqlSelectQuery exp)
         {
             Expressions.Add(exp);
         }
