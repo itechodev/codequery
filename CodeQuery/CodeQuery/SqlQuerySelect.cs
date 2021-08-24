@@ -17,6 +17,7 @@ namespace CodeQuery
     
     public abstract class SqlSource
     {
+        public string Alias { get;  }
         public Type ReflectedType { get;  }
         public List<SqlColumnDefinition> Columns { get; protected set; }
 
@@ -26,7 +27,6 @@ namespace CodeQuery
     // Select 1, 2
     public class SqlNoSource : SqlSource
     {
-        
     }
 
     // ie. select * from generate(1, 100)
@@ -34,7 +34,6 @@ namespace CodeQuery
     {
         
     }
-    
     public class SqlQuerySource : SqlSource
     {
         public SqlSelectQuery SelectQuery { get; }

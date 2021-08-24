@@ -79,11 +79,23 @@ namespace Sample
             // });
         }
 
+        private static T ConstItem<T>(T item)
+        {
+            throw new NotImplementedException();
+        }
+        
         public static void Expressions()
         {
             ISqlGenerator generator = new GenericSqlGenerator();
             
             // SELECT 31 as "age", 'willem' as "name"
+            ConstItem(new
+            {
+                age = 31,
+                name = "willem"
+            });
+            
+            
             var constSource = new SqlNoSource();
             var constExp = new SqlSelectQuery(constSource)
             {

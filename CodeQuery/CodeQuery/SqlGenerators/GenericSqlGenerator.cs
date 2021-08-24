@@ -14,7 +14,7 @@ namespace CodeQuery.SqlGenerators
             var builder = new StringBuilder("SELECT ");
             builder.Append(string.Join(", ", query.Fields.Select(BuildExpression)));
             
-            builder.Append(BuildSource(query.From, true));
+            builder.Append(BuildSource(query.From));
 
             if (query.Joins?.Count > 0)
             {
@@ -26,23 +26,22 @@ namespace CodeQuery.SqlGenerators
 
         private string BuildJoin(SqlJoinSource @join)
         {
-            return $"{@join.JoinType.ToString()} JOIN {BuildSource(@join.Source, false)} ON {BuildExpression(@join.Condition)}";
+            return $"{@join.JoinType.ToString()} JOIN {BuildSource(@join.Source)} ON {BuildExpression(@join.Condition)}";
         }
 
-        private string BuildSource(SqlSource source, bool appendFrom)
+        private string BuildSource(SqlSource source)
         {
             if (source == null)
                 return null;
-
-            var from = appendFrom ? " FROM" : null;
+            
             switch (source)
             {
                 case SqlNoSource _:
-                    return null;
+                    return $" FROM ()";
                 case SqlQuerySource query:
-                    return $"{from} ({Select(query.SelectQuery)}) {query.Alias}";
+                    return $" FROM ({Select(query.SelectQuery)}) {query.Alias}";
                 case SqlTableSource table:
-                    return $"{from} \"{table.TableName}\"";
+                    return $" FROM \"{table.TableName}\"";
                 default:
                     throw new ArgumentOutOfRangeException(nameof(source));
             }
