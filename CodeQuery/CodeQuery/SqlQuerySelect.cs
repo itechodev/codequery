@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using CodeQuery.Definitions;
 using CodeQuery.Interfaces;
 using CodeQuery.SqlExpressions;
+using Xunit.Abstractions;
 
 namespace CodeQuery
 {
@@ -18,7 +19,7 @@ namespace CodeQuery
     public abstract class SqlSource
     {
         public string Alias { get;  }
-        public Type ReflectedType { get;  }
+        public Type ReflectedType { get; protected set; }
         public List<SqlColumnDefinition> Columns { get; protected set; }
 
     }
@@ -27,7 +28,15 @@ namespace CodeQuery
     // Select 1, 2
     public class SqlNoSource : SqlSource
     {
+        public void SetRows<T>(T[] items)
+        {
+            ReflectedType = typeof(T);
+            Rows = new object[] { items };
+        }
+
+        public object[] Rows { get; set; }
     }
+
 
     // ie. select * from generate(1, 100)
     public class SqlFuncSource : SqlSource

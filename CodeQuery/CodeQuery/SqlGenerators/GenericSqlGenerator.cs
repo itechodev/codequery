@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using CodeQuery.SqlExpressions;
 
@@ -29,6 +30,25 @@ namespace CodeQuery.SqlGenerators
             return $"{@join.JoinType.ToString()} JOIN {BuildSource(@join.Source)} ON {BuildExpression(@join.Condition)}";
         }
 
+        private class InspectTypeItem
+        {
+            public string Name { get; set; }
+            public Func<object, object> GetValue { get; set;  }
+        }
+
+        public static object GetValue(MemberInfo memberInfo, object @object)
+        {
+            switch (memberInfo.MemberType)
+            {
+                case MemberTypes.Field:
+                    return ((FieldInfo)memberInfo).GetValue(@object);
+                case MemberTypes.Property:
+                    return ((PropertyInfo)memberInfo).GetValue(@object);
+                default:
+                    throw new NotImplementedException();
+            }
+        } 
+        
         private string BuildSource(SqlSource source)
         {
             if (source == null)
@@ -36,8 +56,16 @@ namespace CodeQuery.SqlGenerators
             
             switch (source)
             {
-                case SqlNoSource _:
-                    return $" FROM ()";
+                case SqlNoSource noSource:
+                    var type = noSource.ReflectedType;
+                    var props = type.GetProperties().Concat(type.GetMembers());
+                    var columns = string.Join("", "", props.Select(p => p.Name));
+                    var values = noSource.Rows.Select(r =>
+                    {
+                        return "(" + string.Join(", ", props.Select(p => GetValue(p, r))) + ")";
+                    });
+                    
+                    return $" FROM (VALUES {string.Join(", ", values)} {noSource.Alias} ({columns}))";
                 case SqlQuerySource query:
                     return $" FROM ({Select(query.SelectQuery)}) {query.Alias}";
                 case SqlTableSource table:

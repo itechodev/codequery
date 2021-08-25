@@ -79,7 +79,7 @@ namespace Sample
             // });
         }
 
-        private static T ConstItem<T>(T item)
+        private static T ConstItem<T>(T[] item)
         {
             throw new NotImplementedException();
         }
@@ -89,20 +89,29 @@ namespace Sample
             ISqlGenerator generator = new GenericSqlGenerator();
             
             // SELECT 31 as "age", 'willem' as "name"
-            ConstItem(new
-            {
-                age = 31,
-                name = "willem"
-            });
-            
+            // Select t.num, t.letter from (
+            //     VALUES (1, 'one'), (2, 'two'), (3, 'three')
+            //     ) as t (num, letter)
             
             var constSource = new SqlNoSource();
+            constSource.SetRows(new[]
+            {
+                new {
+                    age = 31,
+                    name = "willem"
+                },
+                new {
+                    age = 23,
+                    name = "willem"
+                }
+            });
+            
             var constExp = new SqlSelectQuery(constSource)
             {
                 Fields = new List<SqlExpression>
                 {
-                    new SqlAliasExpression(new SqlConstExpression(31, SqlColumnType.Int32), "age"),
-                    new SqlAliasExpression(new SqlConstExpression("willem", SqlColumnType.Varchar), "name"),
+                    new SqlColumnExpression(new SqlColumnDefinition(constSource, "age", SqlColumnType.Int32)),
+                    new SqlColumnExpression(new SqlColumnDefinition(constSource, "name", SqlColumnType.Varchar)),
                 }
             };
 
